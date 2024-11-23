@@ -14,6 +14,8 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/form/PrimaryButton";
+import { useAuth } from "@/hooks/AuthContext";
+import { useRouter } from "expo-router";
 
 const LoginSchema = Yup.object().shape({
   insuranceNumber: Yup.string().required("Insurance Number is required"),
@@ -23,6 +25,9 @@ const LoginSchema = Yup.object().shape({
 });
 
 export default function Login() {
+  const { login } = useAuth();
+  const router = useRouter();
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
@@ -44,8 +49,14 @@ export default function Login() {
           <Formik
             initialValues={{ insuranceNumber: "", password: "" }}
             validationSchema={LoginSchema}
-            onSubmit={(values) => {
+            onSubmit={async (values) => {
               console.log("Login Data:", values);
+              const userDetails = {
+                name: "John Doe",
+                email: "john.doe@example.com",
+              };
+              await login(userDetails);
+              router.replace("/home");
             }}
           >
             {({
