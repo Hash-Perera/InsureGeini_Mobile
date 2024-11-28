@@ -4,10 +4,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/AuthContext";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 const tailwindConfig = require("../../tailwind.config");
 
 export default function Home() {
   const { logout } = useAuth();
+  const router = useRouter();
   const colors = tailwindConfig.theme.extend.colors;
 
   const handleProfile = () => {
@@ -15,10 +17,10 @@ export default function Home() {
   };
 
   const cards = [
-    { id: 1, icon: "assignment", label: "Claim" },
-    { id: 2, icon: "history", label: "My Claims" },
-    { id: 3, icon: "support-agent", label: "Support" },
-    { id: 4, icon: "info-outline", label: "Info" },
+    { id: 1, icon: "assignment", label: "Claim", route: "/claim" },
+    { id: 2, icon: "history", label: "My Claims", route: "/claim" },
+    { id: 3, icon: "support-agent", label: "Support", route: "/claim" },
+    { id: 4, icon: "info-outline", label: "Info", route: "/claim" },
   ];
 
   return (
@@ -73,6 +75,7 @@ export default function Home() {
               <TouchableOpacity
                 key={card.id}
                 className="bg-gray100 rounded-lg p-4 w-40 h-40 justify-center items-center"
+                onPress={() => router.push("./claim")}
               >
                 {/* Icon with Correct Type Casting */}
                 <MaterialIcons

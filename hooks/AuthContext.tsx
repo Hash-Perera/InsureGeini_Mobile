@@ -10,8 +10,8 @@ import { useRouter } from "expo-router";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
-  userDetails: { name: string; email: string } | null;
-  login: (details: { name: string; email: string }) => Promise<void>;
+  userDetails: { role: string; token: string } | null;
+  login: (details: { role: string; token: string }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -19,10 +19,10 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userDetails, setUserDetails] = useState<{
-    name: string;
-    email: string;
+    role: string;
+    token: string;
   } | null>(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadAuthState();
   }, []);
 
-  const login = async (details: { name: string; email: string }) => {
+  const login = async (details: { role: string; token: string }) => {
     await AsyncStorage.setItem("userDetails", JSON.stringify(details));
     setUserDetails(details);
     setIsLoggedIn(true);

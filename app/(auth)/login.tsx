@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -16,17 +16,20 @@ import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/form/PrimaryButton";
 import { useAuth } from "@/hooks/AuthContext";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import { BASE_URL } from "../../constants/server.js";
+import AppLoader from "@/components/apploader";
+import Toast from "react-native-toast-message";
 
 const LoginSchema = Yup.object().shape({
-  insuranceNumber: Yup.string().required("Insurance Number is required"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+  insuranceId: Yup.string().required("Insurance Number is required"),
+  password: Yup.string().required("Password is required"),
 });
 
 export default function Login() {
   const { login } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -35,6 +38,8 @@ export default function Login() {
         className="flex-1"
       >
         <SafeAreaView className="bg-general-500 flex-1 justify-center items-center">
+          <AppLoader visible={isLoading} message="Logging in..." />
+
           <Image
             source={require("@/assets/images/InsureGeini.png")}
             className="w-52 h-52 mb-4"
@@ -47,16 +52,32 @@ export default function Login() {
           </View>
 
           <Formik
-            initialValues={{ insuranceNumber: "", password: "" }}
+            initialValues={{ insuranceId: "", password: "" }}
             validationSchema={LoginSchema}
-            onSubmit={async (values) => {
-              console.log("Login Data:", values);
-              const userDetails = {
-                name: "John Doe",
-                email: "john.doe@example.com",
-              };
-              await login(userDetails);
-              router.replace("/home");
+            onSubmit={(values) => {
+              const url = `${BASE_URL}/auth/login`;
+              setIsLoading(true);
+
+              axios
+                .post(url, values)
+                .then((res) => {
+                  login(res.data);
+                  Toast.show({
+                    type: "success",
+                    text1: "Login Successful 🎉",
+                    position: "top", // Toast position: 'top', 'bottom', or 'center'
+                    visibilityTime: 4000, // Duration in ms
+                    topOffset: 50, // Top margin (useful for "top" position)
+                    props: { onPress: () => router.push("/home") }, // Optional action
+                  });
+                  router.replace("/home");
+                })
+                .catch((err) => {
+                  console.log(err);
+                })
+                .finally(() => {
+                  setIsLoading(false);
+                });
             }}
           >
             {({
@@ -71,10 +92,10 @@ export default function Login() {
                 <InputField
                   label="Insurance ID"
                   placeholder="Enter your insurance Id"
-                  value={values.insuranceNumber}
-                  onChangeText={handleChange("insuranceNumber")}
-                  error={errors.insuranceNumber}
-                  touched={touched.insuranceNumber}
+                  value={values.insuranceId}
+                  onChangeText={handleChange("insuranceId")}
+                  error={errors.insuranceId}
+                  touched={touched.insuranceId}
                 />
 
                 <InputField
