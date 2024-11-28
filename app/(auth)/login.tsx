@@ -43,7 +43,7 @@ export default function Login() {
 
           {/* Welcome Text */}
           <View className="mb-6 items-center">
-            <Text className="text-xl font-bold text-gray-800">Welcome!</Text>
+            <Text className="text-xl font-bold text-gray800">Welcome!</Text>
           </View>
 
           <Formik

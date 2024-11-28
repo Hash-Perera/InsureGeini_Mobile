@@ -27,7 +27,7 @@ export default function InputField({
       {/* Input Field */}
       <TextInput
         className={`p-4 rounded ${
-          isFocused ? "border-2 border-custom-blue" : "border-2 border-gray-200"
+          isFocused ? "border-2 border-custom-blue1" : "border-2 border-gray200"
         } bg-white`}
         placeholder={placeholder}
         value={value}

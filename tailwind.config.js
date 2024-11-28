@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NOTE: Update this to include the paths to all of your component files.
   content: [
     "./App.{js,jsx,ts,tsx}",
     "./app/**/*.{js,jsx,ts,tsx}",
@@ -10,7 +9,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        "custom-blue": "#1978bb",
+        "custom-blue1": "#1978bb",
+        "custom-blue2": "#3cc6ef",
+        gray800: "#1f2937",
+        gray200: "#e5e7eb",
+        gray100: "#f3f4f6",
       },
     },
   },

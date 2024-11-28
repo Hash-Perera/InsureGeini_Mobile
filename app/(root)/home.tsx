@@ -4,9 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/AuthContext";
 import { LinearGradient } from "expo-linear-gradient";
+const tailwindConfig = require("../../tailwind.config");
 
 export default function Home() {
   const { logout } = useAuth();
+  const colors = tailwindConfig.theme.extend.colors;
 
   const handleProfile = () => {
     console.log("Profile button pressed");
@@ -23,19 +25,13 @@ export default function Home() {
     <View style={{ flex: 1 }}>
       {/* Gradient Background */}
       <LinearGradient
-        colors={["#1978bb", "#3cc6ef", "white"]} // Transition to white at the bottom
+        colors={[colors["custom-blue1"], colors["custom-blue2"], "white"]} // Transition to white at the bottom
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }} // Vertical gradient
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
       />
 
       <SafeAreaView className="flex-1">
-        <StatusBar
-          translucent
-          backgroundColor="transparent"
-          barStyle="light-content"
-        />
-
         {/* Header */}
         <View className="flex-col w-full h-96 p-4">
           {/* Header with Logout and Profile Buttons */}
@@ -76,7 +72,7 @@ export default function Home() {
             {cards.map((card) => (
               <TouchableOpacity
                 key={card.id}
-                className="bg-gray-100 rounded-lg p-4 w-40 h-40 justify-center items-center"
+                className="bg-gray100 rounded-lg p-4 w-40 h-40 justify-center items-center"
               >
                 {/* Icon with Correct Type Casting */}
                 <MaterialIcons
@@ -86,7 +82,7 @@ export default function Home() {
                 />
 
                 {/* Label */}
-                <Text className="text-gray-800 mt-2 font-medium">
+                <Text className="text-gray800 mt-2 font-medium">
                   {card.label}
                 </Text>
               </TouchableOpacity>
