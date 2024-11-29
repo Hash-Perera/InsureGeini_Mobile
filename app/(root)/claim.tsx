@@ -7,6 +7,7 @@ import {
   Platform,
   Keyboard,
   ScrollView,
+  Button,
 } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -15,6 +16,8 @@ import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/form/PrimaryButton";
 import { BASE_URL } from "@/constants/server";
 import Toast from "react-native-toast-message";
+import CameraCompnent from "@/components/camera";
+import { useRouter } from "expo-router";
 
 const ClaimSchema = Yup.object().shape({
   insuranceId: Yup.string().required("Insurance Number is required"),
@@ -22,6 +25,12 @@ const ClaimSchema = Yup.object().shape({
 });
 
 export default function Claim() {
+  const router = useRouter();
+
+  const navigateToCamera = () => {
+    router.push("../widgets/camera");
+  };
+
   return (
     // <SafeAreaView className="flex-1">
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -91,6 +100,10 @@ export default function Claim() {
                   error={errors.password}
                   touched={touched.password}
                 />
+
+                {/* <CameraCompnent /> */}
+
+                <Button title="Open Camera" onPress={navigateToCamera} />
 
                 <View className="mt-8">
                   <PrimaryButton onPress={() => handleSubmit()} text="Submit" />
