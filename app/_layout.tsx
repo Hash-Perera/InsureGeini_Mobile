@@ -9,14 +9,6 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(root)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="widgets/camera"
-          options={{
-            headerShown: true,
-            headerTitle: "Camera",
-            headerBackTitle: "Back",
-          }}
-        />
       </Stack>
       <Toast />
     </AuthProvider>

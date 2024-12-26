@@ -65,10 +65,10 @@ export default function Login() {
                   Toast.show({
                     type: "success",
                     text1: "Login Successful 🎉",
-                    position: "top", // Toast position: 'top', 'bottom', or 'center'
-                    visibilityTime: 4000, // Duration in ms
-                    topOffset: 50, // Top margin (useful for "top" position)
-                    props: { onPress: () => router.push("/home") }, // Optional action
+                    position: "top",
+                    visibilityTime: 4000,
+                    topOffset: 50,
+                    props: { onPress: () => router.push("/home") },
                   });
                   router.replace("/home");
                 })

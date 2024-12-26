@@ -27,7 +27,7 @@ export default function Home() {
     <View style={{ flex: 1 }}>
       {/* Gradient Background */}
       <LinearGradient
-        colors={[colors["custom-blue1"], colors["custom-blue2"], "white"]} // Transition to white at the bottom
+        colors={[colors["custom-blue1"], colors["custom-blue2"], "white"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }} // Vertical gradient
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}

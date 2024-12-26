@@ -7,7 +7,7 @@ interface AppLoaderProps {
 }
 
 const AppLoader: React.FC<AppLoaderProps> = ({ visible, message }) => {
-  if (!visible) return null; // Do not render if not visible
+  if (!visible) return null;
 
   return (
     <View
