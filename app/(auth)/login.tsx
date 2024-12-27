@@ -16,10 +16,9 @@ import InputField from "@/components/form/InputField";
 import PrimaryButton from "@/components/form/PrimaryButton";
 import { useAuth } from "@/hooks/AuthContext";
 import { useRouter } from "expo-router";
-import axios from "axios";
-import { BASE_URL } from "../../constants/server.js";
 import AppLoader from "@/components/apploader";
 import Toast from "react-native-toast-message";
+import { AuthService } from "@/services/auth.service";
 
 const LoginSchema = Yup.object().shape({
   insuranceId: Yup.string().required("Insurance Number is required"),
@@ -29,6 +28,8 @@ const LoginSchema = Yup.object().shape({
 export default function Login() {
   const { login } = useAuth();
   const router = useRouter();
+  const authService = AuthService;
+
   const [isLoading, setIsLoading] = useState(false);
 
   return (
@@ -55,11 +56,10 @@ export default function Login() {
             initialValues={{ insuranceId: "", password: "" }}
             validationSchema={LoginSchema}
             onSubmit={(values) => {
-              const url = `${BASE_URL}/auth/login`;
               setIsLoading(true);
 
-              axios
-                .post(url, values)
+              authService
+                .login(values)
                 .then((res) => {
                   login(res.data);
                   Toast.show({
