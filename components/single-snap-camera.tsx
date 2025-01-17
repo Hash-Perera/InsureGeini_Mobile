@@ -1,6 +1,7 @@
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useRef, useState } from "react";
+import * as MediaLibrary from "expo-media-library";
 import { View, Text, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -10,26 +11,38 @@ import AppLoader from "./apploader";
 interface CameraProps {
   onCapture: (uri: string) => void;
   onClose: () => void;
+  cardWidth: number;
+  cardHeight: number;
+  displayText: string;
 }
 
-const cardWidth = 70;
-const cardHeight = 40;
-
-export default function CameraComponent({ onCapture, onClose }: CameraProps) {
+export default function CameraComponent({
+  onCapture,
+  onClose,
+  cardWidth,
+  cardHeight,
+  displayText,
+}: CameraProps) {
   const [facing, setFacing] = useState<CameraType>("back");
-  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [mediaPermission, requestMediaPermission] =
+    MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (!permission) return <View />;
-  if (!permission.granted) {
+  // Ensure permissions
+  if (!cameraPermission || !mediaPermission) return <View />;
+  if (!cameraPermission.granted || !mediaPermission.granted) {
     return (
       <View className="flex-1 bg-black justify-center items-center">
         <Text className="text-white text-lg text-center">
-          We need your permission to access the camera
+          We need your permission to access the camera and media library
         </Text>
         <TouchableOpacity
-          onPress={requestPermission}
+          onPress={() => {
+            requestCameraPermission();
+            requestMediaPermission();
+          }}
           className="bg-blue-500 px-4 py-2 rounded-md mt-4"
         >
           <Text className="text-white text-lg">Grant Permission</Text>
@@ -49,6 +62,7 @@ export default function CameraComponent({ onCapture, onClose }: CameraProps) {
         setIsLoading(true);
 
         if (photo?.uri) {
+          // Crop the image
           const croppedPhoto = await ImageManipulator.manipulateAsync(
             photo.uri,
             [
@@ -64,12 +78,28 @@ export default function CameraComponent({ onCapture, onClose }: CameraProps) {
             { compress: 1, format: ImageManipulator.SaveFormat.PNG }
           );
 
+          // Save photo to media library
+          const asset = await MediaLibrary.createAssetAsync(croppedPhoto.uri);
+
+          // Get metadata
+          const metadata = await MediaLibrary.getAssetInfoAsync(asset.id);
+
+          console.log("Photo Metadata:", metadata);
+
+          // const photoDetails = {
+          //   uri: croppedPhoto.uri,
+          //   location: metadata.location || "No Location Data",
+          //   creationTime: metadata.creationTime || "No Time Data",
+          // };
+
+          // console.log("Photo Details:", photoDetails);
+
           onCapture(croppedPhoto.uri);
           setIsLoading(false);
           onClose();
         }
       } catch (error) {
-        console.error("Failed to capture and crop image:", error);
+        console.error("Failed to capture and process image:", error);
         setIsLoading(false);
       }
     }

@@ -17,6 +17,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import CameraComponent from "@/components/single-snap-camera";
 import Modal from "react-native-modal";
 import { ClaimService } from "@/services/claim.service";
+import GoogleMap from "@/components/map";
+import VoiceRecorder from "@/components/voice-recorder";
 const tailwindConfig = require("../../tailwind.config");
 
 const enum ECameraMode {
@@ -26,6 +28,7 @@ const enum ECameraMode {
   DRI_BACK = "DRI_BACK",
   INS_FRONT = "INS_FRONT",
   INS_BACK = "INS_BACK",
+  DRI_FACE = "DRI_FACE",
 }
 
 export default function Claim() {
@@ -33,6 +36,11 @@ export default function Claim() {
   const claimService = ClaimService;
 
   const [cameraMode, setCameraMode] = useState<ECameraMode | null>(null);
+  const [camSettings, setCamSettings] = useState({
+    cardHeight: 40,
+    cardWidth: 70,
+    displayText: "Align the License Here",
+  });
 
   const [formState, setFormState] = useState({
     insuranceId: "",
@@ -44,6 +52,11 @@ export default function Claim() {
     drivingLicenseNo: "",
     drivingLicenseFront: "",
     drivingLicenseBack: "",
+    driverFace: "",
+    location: {
+      latitude: 0,
+      longitude: 0,
+    },
   });
 
   const ClaimSchema = Yup.object().shape({
@@ -70,6 +83,8 @@ export default function Claim() {
           return { ...prev, insuranceFront: uri };
         case "INS_BACK":
           return { ...prev, insuranceBack: uri };
+        case "DRI_FACE":
+          return { ...prev, driverFace: uri };
         default:
           return prev;
       }
@@ -78,10 +93,14 @@ export default function Claim() {
     setCameraMode(null);
   };
 
-  const handleOpenCamera = (mode: ECameraMode) => {
+  const handleOpenCamera = (mode: ECameraMode, settings?: any) => {
+    if (settings) {
+      setCamSettings(settings);
+    }
     setCameraMode(mode);
   };
 
+  //! Submit Claim Request ======================================>
   const handleSubmit = async (values: any) => {
     console.log(formState);
 
@@ -219,7 +238,13 @@ export default function Claim() {
 
                     <TouchableOpacity
                       className="p-2 rounded-md bg-blue-100"
-                      onPress={() => handleOpenCamera(ECameraMode.INS_FRONT)}
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.INS_FRONT, {
+                          cardHeight: 40,
+                          cardWidth: 70,
+                          displayText: "Align the card Here",
+                        })
+                      }
                     >
                       <MaterialIcons
                         name="camera-alt"
@@ -249,7 +274,13 @@ export default function Claim() {
 
                     <TouchableOpacity
                       className="p-2 rounded-md bg-blue-100"
-                      onPress={() => handleOpenCamera(ECameraMode.INS_BACK)}
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.INS_BACK, {
+                          cardHeight: 40,
+                          cardWidth: 70,
+                          displayText: "Align the card Here",
+                        })
+                      }
                     >
                       <MaterialIcons
                         name="camera-alt"
@@ -300,7 +331,13 @@ export default function Claim() {
 
                     <TouchableOpacity
                       className="p-2 rounded-md bg-blue-100"
-                      onPress={() => handleOpenCamera(ECameraMode.NIC_FRONT)}
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.NIC_FRONT, {
+                          cardHeight: 40,
+                          cardWidth: 70,
+                          displayText: "Align the card Here",
+                        })
+                      }
                     >
                       <MaterialIcons
                         name="camera-alt"
@@ -330,7 +367,13 @@ export default function Claim() {
 
                     <TouchableOpacity
                       className="p-2 rounded-md bg-blue-100"
-                      onPress={() => handleOpenCamera(ECameraMode.NIC_BACK)}
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.NIC_BACK, {
+                          cardHeight: 40,
+                          cardWidth: 70,
+                          displayText: "Align the card Here",
+                        })
+                      }
                     >
                       <MaterialIcons
                         name="camera-alt"
@@ -381,7 +424,13 @@ export default function Claim() {
 
                     <TouchableOpacity
                       className="p-2 rounded-md bg-blue-100"
-                      onPress={() => handleOpenCamera(ECameraMode.DRI_FRONT)}
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.DRI_FRONT, {
+                          cardHeight: 40,
+                          cardWidth: 70,
+                          displayText: "Align the card Here",
+                        })
+                      }
                     >
                       <MaterialIcons
                         name="camera-alt"
@@ -412,7 +461,53 @@ export default function Claim() {
                       </View> */}
                     <TouchableOpacity
                       className="p-2 rounded-md bg-blue-100"
-                      onPress={() => handleOpenCamera(ECameraMode.DRI_BACK)}
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.DRI_BACK, {
+                          cardHeight: 40,
+                          cardWidth: 70,
+                          displayText: "Align the card Here",
+                        })
+                      }
+                    >
+                      <MaterialIcons
+                        name="camera-alt"
+                        size={24}
+                        color={colors["custom-blue2"]}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View className="p-4 bg-white rounded-lg  mt-3">
+                  <Text className="text-lg font-semibold text-gray-800">
+                    Driver Face
+                  </Text>
+
+                  <View className="flex-row justify-between items-center mb-4 p-3 border border-gray-200 rounded-lg mt-3">
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-sm text-gray-500 font-medium">
+                        Face
+                      </Text>
+
+                      {formState.driverFace && (
+                        <Image
+                          source={{
+                            uri: formState.driverFace,
+                          }}
+                          className="h-8 w-14 ms-4"
+                          resizeMode="contain"
+                        />
+                      )}
+                    </View>
+
+                    <TouchableOpacity
+                      className="p-2 rounded-md bg-blue-100"
+                      onPress={() =>
+                        handleOpenCamera(ECameraMode.DRI_FACE, {
+                          cardHeight: 70,
+                          cardWidth: 50,
+                          displayText: "Align the face Here",
+                        })
+                      }
                     >
                       <MaterialIcons
                         name="camera-alt"
@@ -423,7 +518,18 @@ export default function Claim() {
                   </View>
                 </View>
 
-                <View className="mt-8">
+                <GoogleMap
+                  onLocationChange={(location) => {
+                    setFormState((prevState) => ({
+                      ...prevState,
+                      location,
+                    }));
+                  }}
+                />
+
+                <VoiceRecorder />
+
+                <View className="mt-10 mb-8">
                   <PrimaryButton onPress={() => handleSubmit()} text="Submit" />
                 </View>
               </View>
@@ -441,6 +547,9 @@ export default function Claim() {
           <CameraComponent
             onCapture={handleCapture}
             onClose={handleCloseCamera}
+            cardHeight={camSettings.cardHeight}
+            cardWidth={camSettings.cardWidth}
+            displayText={camSettings.displayText}
           />
         </View>
       </Modal>
