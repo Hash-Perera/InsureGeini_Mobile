@@ -19,6 +19,9 @@ import Modal from "react-native-modal";
 import { ClaimService } from "@/services/claim.service";
 import GoogleMap from "@/components/map";
 import VoiceRecorder from "@/components/voice-recorder";
+import CheckboxGroup from "@/components/form/MultipleCheckboxes";
+import MultiImageCameraComponent from "@/components/multiple-snap-camera";
+import CameraInput from "@/components/form/CameraInput";
 const tailwindConfig = require("../../tailwind.config");
 
 const enum ECameraMode {
@@ -29,7 +32,15 @@ const enum ECameraMode {
   INS_FRONT = "INS_FRONT",
   INS_BACK = "INS_BACK",
   DRI_FACE = "DRI_FACE",
+  DAMAGE = "DAMAGE",
 }
+
+const options = [
+  { label: "Front", value: "Front" },
+  { label: "Back", value: "Back" },
+  { label: "Left Side", value: "Left Side" },
+  { label: "Right Side", value: "Right Side" },
+];
 
 export default function Claim() {
   const colors = tailwindConfig.theme.extend.colors;
@@ -53,44 +64,56 @@ export default function Claim() {
     drivingLicenseFront: "",
     drivingLicenseBack: "",
     driverFace: "",
+    damagedAreas: [] as string[],
     location: {
       latitude: 0,
       longitude: 0,
     },
+    damageImages: [] as string[],
   });
 
   const ClaimSchema = Yup.object().shape({
     insuranceId: Yup.string().required("Insurance Number is required"),
     nicNo: Yup.string().required("NIC No is required"),
+    drivingLicenseNo: Yup.string().required("Driving License No is required"),
+    // insuranceFront: Yup.string().required("Insurance Front image is required"),
+    // insuranceBack: Yup.string().required("Insurance Back image is required"),
   });
 
   const handleCloseCamera = () => {
     setCameraMode(null);
   };
 
-  const handleCapture = (uri: string) => {
+  const handleCapture = (uri: any) => {
     setFormState((prev) => {
       switch (cameraMode) {
         case "NIC_FRONT":
+          setCameraMode(null);
           return { ...prev, nicFront: uri };
         case "NIC_BACK":
+          setCameraMode(null);
           return { ...prev, nicBack: uri };
         case "DRI_FRONT":
+          setCameraMode(null);
           return { ...prev, drivingLicenseFront: uri };
         case "DRI_BACK":
+          setCameraMode(null);
           return { ...prev, drivingLicenseBack: uri };
         case "INS_FRONT":
+          setCameraMode(null);
           return { ...prev, insuranceFront: uri };
         case "INS_BACK":
+          setCameraMode(null);
           return { ...prev, insuranceBack: uri };
         case "DRI_FACE":
+          setCameraMode(null);
           return { ...prev, driverFace: uri };
+        case "DAMAGE":
+          return { ...prev, damageImages: uri };
         default:
           return prev;
       }
     });
-
-    setCameraMode(null);
   };
 
   const handleOpenCamera = (mode: ECameraMode, settings?: any) => {
@@ -102,7 +125,7 @@ export default function Claim() {
 
   //! Submit Claim Request ======================================>
   const handleSubmit = async (values: any) => {
-    console.log(formState);
+    console.log("Handle submit executed");
 
     const formData = new FormData();
 
@@ -110,10 +133,12 @@ export default function Claim() {
       insuranceId: formState.insuranceId,
       nicNo: formState.nicNo,
       drivingLicenseNo: formState.drivingLicenseNo,
+      damagedAreas: formState.damagedAreas,
+      location: formState.location,
     };
     formData.append("dto", JSON.stringify(dataObject));
 
-    // Append files if available
+    //! Append files if available
     const appendFile = (key: string, uri: string, filename: string) => {
       formData.append(key, {
         uri,
@@ -162,6 +187,16 @@ export default function Claim() {
       );
     }
 
+    if (formState.driverFace) {
+      appendFile("driverFace", formState.driverFace, "driver_face.png");
+    }
+
+    if (formState.damageImages.length > 0) {
+      formState.damageImages.forEach((uri, index) => {
+        appendFile(`damageImages[${index}]`, uri, `damage_${index}.png`);
+      });
+    }
+
     await claimService
       .submitClaim(formData)
       .then((res) => {
@@ -172,6 +207,8 @@ export default function Claim() {
       });
   };
 
+  //! ===============================================================================
+  //! ===============================================================================
   return (
     <SafeAreaView className="flex-1 ">
       <KeyboardAvoidingView
@@ -196,6 +233,7 @@ export default function Claim() {
               values,
               errors,
               touched,
+              setFieldValue,
             }) => (
               <View className="w-full self-center">
                 <View className="p-4 bg-white rounded-lg ">
@@ -219,76 +257,36 @@ export default function Claim() {
                   />
 
                   {/* Front Section */}
-                  <View className="flex-row justify-between items-center mb-4 p-3 border border-gray-200 rounded-lg">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Front
-                      </Text>
-
-                      {formState.insuranceFront && (
-                        <Image
-                          source={{
-                            uri: formState.insuranceFront,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.INS_FRONT, {
-                          cardHeight: 40,
-                          cardWidth: 70,
-                          displayText: "Align the card Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <CameraInput
+                    label="Front"
+                    imageUri={formState.insuranceFront}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.INS_FRONT, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                    error={errors.insuranceFront}
+                    touched={touched.insuranceFront}
+                  />
 
                   {/* Back Section */}
-                  <View className="flex-row justify-between items-center p-3 border border-gray-200 rounded-lg">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Back
-                      </Text>
-
-                      {formState.insuranceBack && (
-                        <Image
-                          source={{
-                            uri: formState.insuranceBack,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.INS_BACK, {
-                          cardHeight: 40,
-                          cardWidth: 70,
-                          displayText: "Align the card Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <CameraInput
+                    label="Back"
+                    imageUri={formState.insuranceBack}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.INS_BACK, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                    error={errors.insuranceBack}
+                    touched={touched.insuranceBack}
+                  />
                 </View>
 
                 <View className="p-4 bg-white rounded-lg  mt-3">
@@ -312,76 +310,32 @@ export default function Claim() {
                   />
 
                   {/* Front Section */}
-                  <View className="flex-row justify-between items-center mb-4 p-3 border border-gray-200 rounded-lg">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Front
-                      </Text>
-
-                      {formState.nicFront && (
-                        <Image
-                          source={{
-                            uri: formState.nicFront,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.NIC_FRONT, {
-                          cardHeight: 40,
-                          cardWidth: 70,
-                          displayText: "Align the card Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <CameraInput
+                    label="Front"
+                    imageUri={formState.nicFront}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.NIC_FRONT, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                  />
 
                   {/* Back Section */}
-                  <View className="flex-row justify-between items-center p-3 border border-gray-200 rounded-lg">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Back
-                      </Text>
-
-                      {formState.nicBack && (
-                        <Image
-                          source={{
-                            uri: formState.nicBack,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.NIC_BACK, {
-                          cardHeight: 40,
-                          cardWidth: 70,
-                          displayText: "Align the card Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <CameraInput
+                    label="Back"
+                    imageUri={formState.nicBack}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.NIC_BACK, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                  />
                 </View>
 
                 <View className="p-4 bg-white rounded-lg  mt-3">
@@ -405,129 +359,119 @@ export default function Claim() {
                   />
 
                   {/* Front Section */}
-                  <View className="flex-row justify-between items-center mb-4 p-3 border border-gray-200 rounded-lg">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Front
-                      </Text>
-
-                      {formState.drivingLicenseFront && (
-                        <Image
-                          source={{
-                            uri: formState.drivingLicenseFront,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.DRI_FRONT, {
-                          cardHeight: 40,
-                          cardWidth: 70,
-                          displayText: "Align the card Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <CameraInput
+                    label="Front"
+                    imageUri={formState.drivingLicenseFront}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.DRI_FRONT, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                  />
 
                   {/* Back Section */}
-                  <View className="flex-row justify-between items-center p-3 border border-gray-200 rounded-lg">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Back
-                      </Text>
+                  <CameraInput
+                    label="Back"
+                    imageUri={formState.drivingLicenseBack}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.DRI_BACK, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                  />
 
-                      {formState.drivingLicenseBack && (
-                        <Image
-                          source={{
-                            uri: formState.drivingLicenseBack,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-                    {/* <View className="flex-row gap-4">
-                      </View> */}
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.DRI_BACK, {
-                          cardHeight: 40,
-                          cardWidth: 70,
-                          displayText: "Align the card Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                <View className="p-4 bg-white rounded-lg  mt-3">
-                  <Text className="text-lg font-semibold text-gray-800">
+                  <Text className="text-lg font-semibold text-gray-800 mt-4">
                     Driver Face
                   </Text>
 
-                  <View className="flex-row justify-between items-center mb-4 p-3 border border-gray-200 rounded-lg mt-3">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-sm text-gray-500 font-medium">
-                        Face
-                      </Text>
-
-                      {formState.driverFace && (
-                        <Image
-                          source={{
-                            uri: formState.driverFace,
-                          }}
-                          className="h-8 w-14 ms-4"
-                          resizeMode="contain"
-                        />
-                      )}
-                    </View>
-
-                    <TouchableOpacity
-                      className="p-2 rounded-md bg-blue-100"
-                      onPress={() =>
-                        handleOpenCamera(ECameraMode.DRI_FACE, {
-                          cardHeight: 70,
-                          cardWidth: 50,
-                          displayText: "Align the face Here",
-                        })
-                      }
-                    >
-                      <MaterialIcons
-                        name="camera-alt"
-                        size={24}
-                        color={colors["custom-blue2"]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  {/* Back Section */}
+                  <CameraInput
+                    label="Face"
+                    imageUri={formState.driverFace}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.DRI_FACE, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                  />
                 </View>
+                <View className="p-4 bg-white rounded-lg  mt-3">
+                  <CheckboxGroup
+                    title="Damaged Areas"
+                    options={options}
+                    selectedValues={formState.damagedAreas}
+                    onChange={(selectedValues) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        damagedAreas: selectedValues,
+                      }))
+                    }
+                  />
 
-                <GoogleMap
-                  onLocationChange={(location) => {
-                    setFormState((prevState) => ({
-                      ...prevState,
-                      location,
-                    }));
-                  }}
-                />
+                  <Text className="text-lg font-semibold text-gray-800 mt-4">
+                    Accident Location
+                  </Text>
 
-                <VoiceRecorder />
+                  <GoogleMap
+                    onLocationChange={(location) => {
+                      setFormState((prevState) => ({
+                        ...prevState,
+                        location,
+                      }));
+                    }}
+                  />
+
+                  <Text className="text-lg font-semibold text-gray-800 mt-10">
+                    Incident Voice Note
+                  </Text>
+                  <VoiceRecorder />
+
+                  <Text className="text-lg font-semibold text-gray-800 mt-10">
+                    Accident Images
+                  </Text>
+
+                  <TouchableOpacity
+                    className="p-2 rounded-md bg-blue-100 flex-row items-center justify-center mt-4"
+                    onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
+                  >
+                    <MaterialIcons
+                      name="camera-alt"
+                      size={24}
+                      color={colors["custom-blue2"]}
+                    />
+                  </TouchableOpacity>
+
+                  {formState.damageImages.length > 0 && (
+                    <ScrollView
+                      horizontal
+                      className="w-full h-24 mt-2 bg-gray-200"
+                      contentContainerStyle={{
+                        alignItems: "center",
+                        paddingHorizontal: 10,
+                      }}
+                      showsHorizontalScrollIndicator={false}
+                    >
+                      {formState.damageImages.map((uri, index) => (
+                        <View key={index} className="mr-4 relative">
+                          <Image
+                            source={{ uri }}
+                            className="w-20 h-20 rounded-md"
+                            style={{ resizeMode: "cover" }}
+                          />
+                        </View>
+                      ))}
+                    </ScrollView>
+                  )}
+                </View>
 
                 <View className="mt-10 mb-8">
                   <PrimaryButton onPress={() => handleSubmit()} text="Submit" />
@@ -539,7 +483,7 @@ export default function Claim() {
       </KeyboardAvoidingView>
 
       <Modal
-        isVisible={cameraMode !== null}
+        isVisible={cameraMode !== null && cameraMode !== ECameraMode.DAMAGE}
         style={{ margin: 0, justifyContent: "flex-end" }}
         onBackdropPress={handleCloseCamera}
       >
@@ -550,6 +494,22 @@ export default function Claim() {
             cardHeight={camSettings.cardHeight}
             cardWidth={camSettings.cardWidth}
             displayText={camSettings.displayText}
+          />
+        </View>
+      </Modal>
+      <Modal
+        isVisible={cameraMode === ECameraMode.DAMAGE}
+        style={{ margin: 0, justifyContent: "flex-end" }}
+        onBackdropPress={handleCloseCamera}
+      >
+        <View style={{ height: "60%", backgroundColor: "white" }}>
+          <MultiImageCameraComponent
+            onClose={handleCloseCamera}
+            onImagesChange={handleCapture}
+            initialImages={formState.damageImages}
+            cardWidth={80}
+            cardHeight={50}
+            displayText="Align Document Here"
           />
         </View>
       </Modal>

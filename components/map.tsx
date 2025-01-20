@@ -52,7 +52,7 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
   }
 
   return (
-    <View className="h-80 mt-5 border border-gray-200 rounded-lg overflow-hidden">
+    <View className="h-40 mt-5 border border-gray-200 rounded-lg overflow-hidden">
       <MapView
         style={{ width: "100%", height: "100%" }}
         region={region}

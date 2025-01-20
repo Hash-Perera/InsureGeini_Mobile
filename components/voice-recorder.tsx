@@ -379,96 +379,91 @@ export default function VoiceRecorder() {
   }, [sound]);
 
   return (
-    <View className="flex-1 justify-center items-center bg-gray-100">
-      {/* Wave Animation */}
-      <View
-        style={{
-          width: "90%",
-          height: 100,
-          backgroundColor: "#f0f0f0",
-          borderRadius: 10,
-          padding: 10,
-          overflow: "hidden",
-        }}
-      >
-        <ScrollView
-          horizontal
-          ref={scrollViewRef}
-          showsHorizontalScrollIndicator={false}
-        >
-          <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-            {waveBars.map((height, index) => {
-              const isPlayed = index < playbackProgress * waveBars.length;
-              return (
-                <View
-                  key={index}
-                  style={{
-                    width: 4,
-                    height,
-                    backgroundColor: isPlayed ? "#00ff00" : "#007bff", // Played portion is green
-                    borderRadius: 2,
-                    marginHorizontal: 2,
-                  }}
+    <View className="flex-1 bg-gray200 justify-center items-center mt-5 p-1 rounded-lg">
+      {/* Main Row Container */}
+      <View className="flex-row items-center justify-between">
+        {/* Buttons Section */}
+        <View className="flex-row space-x-4">
+          {!recordingUri && !recording && (
+            <TouchableOpacity
+              className="bg-blue-500 p-4 rounded-full"
+              onPress={startRecording}
+            >
+              <MaterialIcons name="mic" size={12} color="white" />
+            </TouchableOpacity>
+          )}
+
+          {recording && (
+            <TouchableOpacity
+              className="bg-red-500 p-4 rounded-full"
+              onPress={stopRecording}
+            >
+              <MaterialIcons name="stop" size={12} color="white" />
+            </TouchableOpacity>
+          )}
+
+          {recordingUri && !recording && (
+            <>
+              <TouchableOpacity
+                className="bg-green-500 p-4 rounded-full"
+                onPress={isPlaying ? stopPlayback : playRecording}
+              >
+                <Ionicons
+                  name={isPlaying ? "pause" : "play"}
+                  size={12}
+                  color="white"
                 />
-              );
-            })}
-          </View>
-        </ScrollView>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="bg-gray-500 p-4 rounded-full"
+                onPress={() => {
+                  deleteRecording();
+                }}
+              >
+                <Ionicons name="trash" size={12} color="white" />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+
+        {/* Wave Animation Section */}
+        <View className="h-14 bg-gray-100 rounded-lg p-2 flex-1 ml-4 overflow-hidden">
+          <ScrollView
+            horizontal
+            ref={scrollViewRef}
+            showsHorizontalScrollIndicator={false}
+          >
+            <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+              {waveBars.map((height, index) => {
+                const isPlayed = index < playbackProgress * waveBars.length;
+                return (
+                  <View
+                    key={index}
+                    style={{
+                      width: 4,
+                      height,
+                      backgroundColor: isPlayed ? "#00ff00" : "#007bff", // Played portion is green
+                      borderRadius: 2,
+                      marginHorizontal: 2,
+                    }}
+                  />
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
       </View>
 
-      {/* Recording Timer */}
+      {/* Timers */}
       {recording && (
         <Text className="text-gray-600 mt-2">
           Recording: {recordingSeconds}s
         </Text>
       )}
 
-      {/* Playback Timer */}
       {recordingUri && !recording && (
         <Text className="text-gray-600 mt-2">Played: {playedSeconds}s</Text>
-      )}
-
-      {/* Recording and Playback Buttons */}
-      {!recordingUri && !recording && (
-        <TouchableOpacity
-          className="bg-blue-500 p-4 rounded-full mt-6"
-          onPress={startRecording}
-        >
-          <MaterialIcons name="mic" size={24} color="white" />
-        </TouchableOpacity>
-      )}
-
-      {recording && (
-        <TouchableOpacity
-          className="bg-red-500 p-4 rounded-full mt-6"
-          onPress={stopRecording}
-        >
-          <MaterialIcons name="stop" size={24} color="white" />
-        </TouchableOpacity>
-      )}
-
-      {recordingUri && !recording && (
-        <View className="flex-row mt-6 space-x-4">
-          <TouchableOpacity
-            className="bg-green-500 p-4 rounded-full"
-            onPress={isPlaying ? stopPlayback : playRecording}
-          >
-            <Ionicons
-              name={isPlaying ? "pause" : "play"}
-              size={24}
-              color="white"
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className="bg-gray-500 p-4 rounded-full"
-            onPress={() => {
-              deleteRecording(); // Properly execute the delete function
-            }}
-          >
-            <Ionicons name="trash" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
       )}
     </View>
   );
