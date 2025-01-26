@@ -84,7 +84,7 @@ export default function CameraComponent({
           // Get metadata
           const metadata = await MediaLibrary.getAssetInfoAsync(asset.id);
 
-          console.log("Photo Metadata:", metadata);
+          // console.log("Photo Metadata:", metadata);
 
           // const photoDetails = {
           //   uri: croppedPhoto.uri,

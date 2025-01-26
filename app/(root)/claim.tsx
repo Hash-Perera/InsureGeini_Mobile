@@ -193,7 +193,7 @@ export default function Claim() {
 
     if (formState.damageImages.length > 0) {
       formState.damageImages.forEach((uri, index) => {
-        appendFile(`damageImages[${index}]`, uri, `damage_${index}.png`);
+        appendFile("damageImages", uri, `damage_${index}.png`);
       });
     }
 
