@@ -5,6 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/AuthContext";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { ClaimService } from "@/services/claim.service";
 const tailwindConfig = require("../../tailwind.config");
 
 export default function Home() {
@@ -18,7 +19,7 @@ export default function Home() {
 
   const cards = [
     { id: 1, icon: "assignment", label: "Claim", route: "/claim" },
-    { id: 2, icon: "history", label: "My Claims", route: "/claim" },
+    { id: 2, icon: "history", label: "My Claims", route: "/my-claims" },
     { id: 3, icon: "support-agent", label: "Support", route: "/claim" },
     { id: 4, icon: "info-outline", label: "Info", route: "/claim" },
   ];
@@ -75,7 +76,7 @@ export default function Home() {
               <TouchableOpacity
                 key={card.id}
                 className="bg-gray100 rounded-lg p-4 w-40 h-40 justify-center items-center"
-                onPress={() => router.push("./claim")}
+                onPress={() => router.navigate(card.route as any)}
               >
                 {/* Icon with Correct Type Casting */}
                 <MaterialIcons
@@ -92,6 +93,14 @@ export default function Home() {
             ))}
           </View>
         </View>
+
+        {/* Button */}
+        <TouchableOpacity
+          onPress={ClaimService.getClaims}
+          className="bg-blue-500 p-8 justify-center items-center"
+        >
+          <Text className="text-white">Claim Now</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     </View>
   );

@@ -16,13 +16,14 @@ import PrimaryButton from "@/components/form/PrimaryButton";
 import { MaterialIcons } from "@expo/vector-icons";
 import CameraComponent from "@/components/single-snap-camera";
 import Modal from "react-native-modal";
-import { ClaimService } from "@/services/claim.service";
 import GoogleMap from "@/components/map";
 import VoiceRecorder from "@/components/voice-recorder";
 import CheckboxGroup from "@/components/form/MultipleCheckboxes";
 import MultiImageCameraComponent from "@/components/multiple-snap-camera";
 import CameraInput from "@/components/form/CameraInput";
-const tailwindConfig = require("../../tailwind.config");
+const tailwindConfig = require("../../../tailwind.config");
+//! Services
+import { ClaimService } from "@/services/claim.service";
 
 const enum ECameraMode {
   NIC_FRONT = "NIC_FRONT",

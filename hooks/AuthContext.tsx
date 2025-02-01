@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userDetails, setUserDetails] = useState<{
     role: string;
     token: string;
@@ -29,9 +29,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Load login state and user details from storage
     const loadAuthState = async () => {
       const storedUserDetails = await AsyncStorage.getItem("userDetails");
+      console.log("This is load auth state");
+      console.log(storedUserDetails);
       if (storedUserDetails) {
         setUserDetails(JSON.parse(storedUserDetails));
         setIsLoggedIn(true);
+        // Navigate to Home if credentials exist
+        router.replace("/home");
       }
     };
 

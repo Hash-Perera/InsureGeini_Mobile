@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/constants/server";
 import axios from "axios";
+import httpClient from "@/constants/httpclient"; // Adjust the import path as necessary
 
 export const ClaimService = {
   //! Submit a claim
@@ -13,6 +14,6 @@ export const ClaimService = {
 
   //! Get all claims
   async getClaims() {
-    return await axios.get(`${BASE_URL}/claims/all/:id`);
+    return await httpClient.get(`/claims/all`);
   },
 };
