@@ -24,6 +24,8 @@ import CameraInput from "@/components/form/CameraInput";
 const tailwindConfig = require("../../../tailwind.config");
 //! Services
 import { ClaimService } from "@/services/claim.service";
+import AppLoader from "@/components/apploader";
+import { useRouter } from "expo-router";
 
 const enum ECameraMode {
   NIC_FRONT = "NIC_FRONT",
@@ -34,6 +36,8 @@ const enum ECameraMode {
   INS_BACK = "INS_BACK",
   DRI_FACE = "DRI_FACE",
   DAMAGE = "DAMAGE",
+  LIC_PLATE_FRONT = "LIC_PLATE_FRONT",
+  LIC_PLATE_BACK = "LIC_PLATE_BACK",
 }
 
 const options = [
@@ -53,6 +57,8 @@ export default function Claim() {
     cardWidth: 70,
     displayText: "Align the License Here",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const [formState, setFormState] = useState({
     insuranceId: "",
@@ -65,6 +71,8 @@ export default function Claim() {
     drivingLicenseFront: "",
     drivingLicenseBack: "",
     driverFace: "",
+    frontLicencePlate: "",
+    backLicencePlate: "",
     damagedAreas: [] as string[],
     location: {
       latitude: 0,
@@ -109,8 +117,15 @@ export default function Claim() {
         case "DRI_FACE":
           setCameraMode(null);
           return { ...prev, driverFace: uri };
+        case "LIC_PLATE_FRONT":
+          setCameraMode(null);
+          return { ...prev, frontLicencePlate: uri };
+        case "LIC_PLATE_BACK":
+          setCameraMode(null);
+          return { ...prev, backLicencePlate: uri };
         case "DAMAGE":
           return { ...prev, damageImages: uri };
+
         default:
           return prev;
       }
@@ -127,6 +142,7 @@ export default function Claim() {
   //! Submit Claim Request ======================================>
   const handleSubmit = async (values: any) => {
     console.log("Handle submit executed");
+    setIsLoading(true);
 
     const formData = new FormData();
 
@@ -139,7 +155,7 @@ export default function Claim() {
     };
     formData.append("dto", JSON.stringify(dataObject));
 
-    //! Append files if available
+    //! Append files if available -------------------------------->
     const appendFile = (key: string, uri: string, filename: string) => {
       formData.append(key, {
         uri,
@@ -192,6 +208,22 @@ export default function Claim() {
       appendFile("driverFace", formState.driverFace, "driver_face.png");
     }
 
+    if (formState.frontLicencePlate) {
+      appendFile(
+        "frontLicencePlate",
+        formState.frontLicencePlate,
+        "front_licence_plate.png"
+      );
+    }
+
+    if (formState.backLicencePlate) {
+      appendFile(
+        "backLicencePlate",
+        formState.backLicencePlate,
+        "back_licence_plate.png"
+      );
+    }
+
     if (formState.damageImages.length > 0) {
       formState.damageImages.forEach((uri, index) => {
         appendFile("damageImages", uri, `damage_${index}.png`);
@@ -201,10 +233,13 @@ export default function Claim() {
     await claimService
       .submitClaim(formData)
       .then((res) => {
-        console.log(res);
+        router.push("/my-claims" as any);
       })
       .catch((err) => {
         console.log(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -212,6 +247,7 @@ export default function Claim() {
   //! ===============================================================================
   return (
     <SafeAreaView className="flex-1 ">
+      <AppLoader visible={isLoading} message="Loading..." />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -406,6 +442,37 @@ export default function Claim() {
                   />
                 </View>
                 <View className="p-4 bg-white rounded-lg  mt-3">
+                  <Text className="text-lg font-semibold text-gray-800 mt-4">
+                    License Plate Details
+                  </Text>
+
+                  <CameraInput
+                    label="Front"
+                    imageUri={formState.frontLicencePlate}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.LIC_PLATE_FRONT, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align Here",
+                      })
+                    }
+                    colors={colors}
+                  />
+                  <CameraInput
+                    label="Back"
+                    imageUri={formState.backLicencePlate}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.LIC_PLATE_BACK, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align Here",
+                      })
+                    }
+                    colors={colors}
+                  />
+
+                  <View className="mt-4"></View>
+
                   <CheckboxGroup
                     title="Damaged Areas"
                     options={options}

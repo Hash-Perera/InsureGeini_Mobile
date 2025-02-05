@@ -1,51 +1,97 @@
-import ClaimCardList from "@/components/claim-card";
 import { useRouter } from "expo-router";
-import { View, Text, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+
+import { useEffect, useState } from "react";
+import { Claim } from "@/models/claim.model";
+import { MaterialIcons } from "@expo/vector-icons";
+import AppLoader from "@/components/apploader";
+
+//! Services
+import { ClaimService } from "@/services/claim.service";
+import { insuranceIcons, statusColors } from "@/constants/geini-colors";
 
 export default function MyClaims() {
   const router = useRouter();
 
-  const cards = [
-    {
-      id: "65a3b9e47c6a01e3b87e1234",
-      icon: "assignment",
-      title: "Claim 1",
-      subtitle: "Submit a claim",
-      onPress: () => router.push("/65a3b9e47c6a01e3b87e1234" as any),
-    },
-    {
-      id: "65a3b9e47c6a01e3b87e1231",
-      icon: "history",
-      title: "Claim 2",
-      subtitle: "View claim history",
-      onPress: () => router.push("/65a3b9e47c6a01e3b87e1231" as any),
-    },
-    {
-      id: "65a3b9e47c6a01e3b87e1232",
-      icon: "support-agent",
-      title: "Claim 3",
-      subtitle: "Contact support",
-      onPress: () => router.push("/65a3b9e47c6a01e3b87e1232" as any),
-    },
-    {
-      id: "65a3b9e47c6a01e3b87e1233",
-      icon: "info-outline",
-      title: "Claim 4",
-      subtitle: "Get more details",
-      onPress: () => router.push("/65a3b9e47c6a01e3b87e1233" as any),
-    },
-    {
-      id: "65a3b9e47c6a01e3b87e1235",
-      icon: "warehouse",
-      title: "Claim 5",
-      subtitle: "Get more details",
-      onPress: () => router.push("/65a3b9e47c6a01e3b87e1235" as any),
-    },
-  ];
+  //! Get claims from the server
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  //! Fetch claims from the server
+  useEffect(() => {
+    const fetchClaims = async () => {
+      try {
+        const response = await ClaimService.getClaims();
+        setClaims(response.data.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClaims();
+  }, []);
+
+  const onItemPress = (id: string) => {
+    router.push(`/${id}` as any);
+  };
+
+  const getRandomIcon = () => {
+    return insuranceIcons[Math.floor(Math.random() * insuranceIcons.length)];
+  };
 
   return (
     <SafeAreaView className="flex-1">
-      <ClaimCardList data={cards} />
+      <AppLoader visible={isLoading} message="Receiving claims..." />
+      <FlatList
+        data={claims}
+        keyExtractor={(item) => item._id as string}
+        renderItem={({ item }) => {
+          const statusStyle = statusColors[item.status ?? "Pending"];
+
+          return (
+            <TouchableOpacity
+              className="bg-white p-6 rounded-lg shadow-md flex-row items-center mb-4 relative"
+              onPress={() => onItemPress(item._id as string)}
+            >
+              {/* Left Icon */}
+              <MaterialIcons name={getRandomIcon()} size={36} color="#1978bb" />
+
+              {/* Claim Details */}
+              <View className="ml-4 flex-1">
+                <Text className="text-lg font-semibold">
+                  Claim #{item._id?.slice(-6)}
+                </Text>
+                <Text className="text-gray-500">
+                  Insurance ID: {item.insuranceId}
+                </Text>
+                <Text className="text-gray-500">
+                  Filed on:{" "}
+                  {item.createdAt
+                    ? new Date(item.createdAt).toLocaleDateString()
+                    : "N/A"}
+                </Text>
+              </View>
+
+              <View
+                className={`absolute top-3 right-3 px-3 py-1  rounded-lg ${statusStyle.bg}`}
+              >
+                <Text className={`font-semibold ${statusStyle.text}`}>
+                  {item.status}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        }}
+        contentContainerStyle={{ padding: 16 }}
+      />
     </SafeAreaView>
   );
 }
