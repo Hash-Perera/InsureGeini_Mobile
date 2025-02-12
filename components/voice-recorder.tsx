@@ -1,190 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-// import { Audio } from "expo-av";
-// import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-// import { ProgressBar } from "react-native-paper";
-
-// const recordingOptions = {
-//   android: {
-//     extension: ".m4a",
-//     outputFormat: 2, // MPEG_4
-//     audioEncoder: 3, // AAC
-//     sampleRate: 44100,
-//     numberOfChannels: 2,
-//     bitRate: 128000,
-//   },
-//   ios: {
-//     extension: ".m4a",
-//     audioQuality: 0, // High quality
-//     sampleRate: 44100,
-//     numberOfChannels: 2,
-//     bitRate: 128000,
-//     linearPCMBitDepth: 16,
-//     linearPCMIsBigEndian: false,
-//     linearPCMIsFloat: false,
-//   },
-//   web: {
-//     mimeType: "audio/webm",
-//     bitsPerSecond: 128000,
-//     numberOfAudioChannels: 2,
-//     sampleRate: 44100,
-//   },
-// };
-
-// export default function VoiceRecorder() {
-//   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-//   const [recordingUri, setRecordingUri] = useState<string | null>(null);
-//   const [isPlaying, setIsPlaying] = useState(false);
-//   const [sound, setSound] = useState<Audio.Sound | null>(null);
-//   const [playbackProgress, setPlaybackProgress] = useState(0);
-
-//   // Start recording
-//   const startRecording = async () => {
-//     try {
-//       console.log("Requesting permissions...");
-//       const { granted } = await Audio.requestPermissionsAsync();
-//       if (!granted) {
-//         Alert.alert("Permission required", "Please grant audio permissions.");
-//         return;
-//       }
-
-//       console.log("Configuring audio...");
-//       await Audio.setAudioModeAsync({
-//         allowsRecordingIOS: true,
-//         playsInSilentModeIOS: true,
-//       });
-
-//       console.log("Starting recording...");
-//       const recording = new Audio.Recording();
-//       await recording.prepareToRecordAsync(recordingOptions);
-//       await recording.startAsync();
-//       setRecording(recording);
-//       console.log("Recording started.");
-//     } catch (error) {
-//       console.error("Failed to start recording:", error);
-//     }
-//   };
-
-//   // Stop recording
-//   const stopRecording = async () => {
-//     console.log("Stopping recording...");
-//     try {
-//       if (!recording) return;
-
-//       await recording.stopAndUnloadAsync();
-//       const uri = recording.getURI();
-//       setRecordingUri(uri);
-//       console.log("Recording stopped and saved to:", uri);
-//       setRecording(null);
-//     } catch (error) {
-//       console.error("Failed to stop recording:", error);
-//     }
-//   };
-
-//   // Play recording
-//   const playRecording = async () => {
-//     try {
-//       if (!recordingUri) return;
-
-//       console.log("Playing recording...");
-//       const { sound } = await Audio.Sound.createAsync({ uri: recordingUri });
-//       setSound(sound);
-//       setIsPlaying(true);
-//       await sound.playAsync();
-//       sound.setOnPlaybackStatusUpdate((status) => {
-//         if (status.isLoaded && !status.isPlaying) {
-//           setIsPlaying(false);
-//         }
-//       });
-//     } catch (error) {
-//       console.error("Failed to play recording:", error);
-//     }
-//   };
-
-//   // Stop playback
-//   const stopPlayback = async () => {
-//     if (sound) {
-//       await sound.stopAsync();
-//       setIsPlaying(false);
-//     }
-//   };
-
-//   // Delete recording
-//   const deleteRecording = () => {
-//     setRecordingUri(null);
-//     setPlaybackProgress(0);
-//     Alert.alert("Deleted", "Recording has been deleted.");
-//   };
-
-//   // Cleanup sound object on unmount
-//   useEffect(() => {
-//     return () => {
-//       if (sound) {
-//         sound.unloadAsync();
-//       }
-//     };
-//   }, [sound]);
-
-//   return (
-//     <View className="flex-1 justify-center items-center bg-gray-100">
-//       {!recordingUri && !recording && (
-//         <TouchableOpacity
-//           className="bg-blue-500 p-4 rounded-full flex-row justify-center items-center"
-//           onPress={startRecording}
-//         >
-//           <MaterialIcons name="mic" size={24} color="white" />
-//           <Text className="text-white font-bold ml-2">Record</Text>
-//         </TouchableOpacity>
-//       )}
-
-//       {recording && (
-//         <TouchableOpacity
-//           className="bg-red-500 p-4 rounded-full flex-row justify-center items-center"
-//           onPress={stopRecording}
-//         >
-//           <MaterialIcons name="stop" size={24} color="white" />
-//           <Text className="text-white font-bold ml-2">Stop</Text>
-//         </TouchableOpacity>
-//       )}
-
-//       {recordingUri && !recording && (
-//         <>
-//           <View className="w-4/5 mt-4">
-//             <ProgressBar progress={playbackProgress} color="#007bff" />
-//             <Text className="text-gray-600 text-center mt-2">
-//               {playbackProgress * 100}% played
-//             </Text>
-//           </View>
-
-//           <View className="flex-row mt-6 space-x-4">
-//             <TouchableOpacity
-//               className="bg-green-500 p-4 rounded-full flex-row justify-center items-center"
-//               onPress={playRecording}
-//             >
-//               <Ionicons
-//                 name={isPlaying ? "pause" : "play"}
-//                 size={24}
-//                 color="white"
-//               />
-//               <Text className="text-white font-bold ml-2">
-//                 {isPlaying ? "Pause" : "Play"}
-//               </Text>
-//             </TouchableOpacity>
-
-//             <TouchableOpacity
-//               className="bg-gray-500 p-4 rounded-full flex-row justify-center items-center"
-//               onPress={deleteRecording}
-//             >
-//               <Ionicons name="trash" size={24} color="white" />
-//               <Text className="text-white font-bold ml-2">Delete</Text>
-//             </TouchableOpacity>
-//           </View>
-//         </>
-//       )}
-//     </View>
-//   );
-// }
-
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { Audio } from "expo-av";
@@ -217,7 +30,11 @@ const recordingOptions = {
   },
 };
 
-export default function VoiceRecorder() {
+interface VoiceRecorderProps {
+  setFormState: React.Dispatch<React.SetStateAction<any>>;
+}
+
+export default function VoiceRecorder({ setFormState }: VoiceRecorderProps) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -277,6 +94,11 @@ export default function VoiceRecorder() {
 
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
+      // Update the form state with the audio URI
+      setFormState((prev: any) => ({
+        ...prev,
+        audio: uri, // This will update the audio in the parent component's state
+      }));
       setRecordingUri(uri);
       setRecording(null);
     } catch (error) {
@@ -379,14 +201,14 @@ export default function VoiceRecorder() {
   }, [sound]);
 
   return (
-    <View className="flex-1 bg-gray200 justify-center items-center mt-5 p-1 rounded-lg">
+    <View className="items-center justify-center flex-1 p-1 mt-5 rounded-lg bg-gray200">
       {/* Main Row Container */}
       <View className="flex-row items-center justify-between">
         {/* Buttons Section */}
         <View className="flex-row space-x-4">
           {!recordingUri && !recording && (
             <TouchableOpacity
-              className="bg-blue-500 p-4 rounded-full"
+              className="p-4 bg-blue-500 rounded-full"
               onPress={startRecording}
             >
               <MaterialIcons name="mic" size={12} color="white" />
@@ -395,7 +217,7 @@ export default function VoiceRecorder() {
 
           {recording && (
             <TouchableOpacity
-              className="bg-red-500 p-4 rounded-full"
+              className="p-4 bg-red-500 rounded-full"
               onPress={stopRecording}
             >
               <MaterialIcons name="stop" size={12} color="white" />
@@ -405,7 +227,7 @@ export default function VoiceRecorder() {
           {recordingUri && !recording && (
             <>
               <TouchableOpacity
-                className="bg-green-500 p-4 rounded-full"
+                className="p-4 bg-green-500 rounded-full"
                 onPress={isPlaying ? stopPlayback : playRecording}
               >
                 <Ionicons
@@ -416,7 +238,7 @@ export default function VoiceRecorder() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="bg-gray-500 p-4 rounded-full"
+                className="p-4 bg-gray-500 rounded-full"
                 onPress={() => {
                   deleteRecording();
                 }}
@@ -428,7 +250,7 @@ export default function VoiceRecorder() {
         </View>
 
         {/* Wave Animation Section */}
-        <View className="h-14 bg-gray-100 rounded-lg p-2 flex-1 ml-4 overflow-hidden">
+        <View className="flex-1 p-2 ml-4 overflow-hidden bg-gray-100 rounded-lg h-14">
           <ScrollView
             horizontal
             ref={scrollViewRef}
@@ -457,13 +279,13 @@ export default function VoiceRecorder() {
 
       {/* Timers */}
       {recording && (
-        <Text className="text-gray-600 mt-2">
+        <Text className="mt-2 text-gray-600">
           Recording: {recordingSeconds}s
         </Text>
       )}
 
       {recordingUri && !recording && (
-        <Text className="text-gray-600 mt-2">Played: {playedSeconds}s</Text>
+        <Text className="mt-2 text-gray-600">Played: {playedSeconds}s</Text>
       )}
     </View>
   );
