@@ -94,13 +94,13 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Button */}
+        {/* Button
         <TouchableOpacity
           onPress={ClaimService.getClaims}
           className="bg-blue-500 p-8 justify-center items-center"
         >
           <Text className="text-white">Claim Now</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </SafeAreaView>
     </View>
   );
