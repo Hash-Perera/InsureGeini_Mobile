@@ -79,6 +79,7 @@ export default function Claim() {
       longitude: 0,
     },
     damageImages: [] as string[],
+    audio: "",
   });
 
   const ClaimSchema = Yup.object().shape({
@@ -230,6 +231,17 @@ export default function Claim() {
       });
     }
 
+    //adding audio file
+    if (formState.audio) {
+      formData.append("audio", {
+        uri: formState.audio,
+        name: `audio.mp3`,
+        type: "audio/mp3",
+      } as any);
+    }
+
+    console.log("Form Data", formData);
+
     await claimService
       .submitClaim(formData)
       .then((res) => {
@@ -272,7 +284,7 @@ export default function Claim() {
               touched,
               setFieldValue,
             }) => (
-              <View className="w-full self-center">
+              <View className="self-center w-full">
                 <View className="p-4 bg-white rounded-lg ">
                   <Text className="text-lg font-semibold text-gray-800">
                     Insurance Details
@@ -326,7 +338,7 @@ export default function Claim() {
                   />
                 </View>
 
-                <View className="p-4 bg-white rounded-lg  mt-3">
+                <View className="p-4 mt-3 bg-white rounded-lg">
                   <Text className="text-lg font-semibold text-gray-800">
                     NIC Details
                   </Text>
@@ -375,7 +387,7 @@ export default function Claim() {
                   />
                 </View>
 
-                <View className="p-4 bg-white rounded-lg  mt-3">
+                <View className="p-4 mt-3 bg-white rounded-lg">
                   <Text className="text-lg font-semibold text-gray-800">
                     Driving Licence Details
                   </Text>
@@ -423,7 +435,7 @@ export default function Claim() {
                     colors={colors}
                   />
 
-                  <Text className="text-lg font-semibold text-gray-800 mt-4">
+                  <Text className="mt-4 text-lg font-semibold text-gray-800">
                     Driver Face
                   </Text>
 
@@ -441,8 +453,8 @@ export default function Claim() {
                     colors={colors}
                   />
                 </View>
-                <View className="p-4 bg-white rounded-lg  mt-3">
-                  <Text className="text-lg font-semibold text-gray-800 mt-4">
+                <View className="p-4 mt-3 bg-white rounded-lg">
+                  <Text className="mt-4 text-lg font-semibold text-gray-800">
                     License Plate Details
                   </Text>
 
@@ -485,7 +497,7 @@ export default function Claim() {
                     }
                   />
 
-                  <Text className="text-lg font-semibold text-gray-800 mt-4">
+                  <Text className="mt-4 text-lg font-semibold text-gray-800">
                     Accident Location
                   </Text>
 
@@ -498,17 +510,17 @@ export default function Claim() {
                     }}
                   />
 
-                  <Text className="text-lg font-semibold text-gray-800 mt-10">
+                  <Text className="mt-10 text-lg font-semibold text-gray-800">
                     Incident Voice Note
                   </Text>
-                  <VoiceRecorder />
+                  <VoiceRecorder setFormState={setFormState} />
 
-                  <Text className="text-lg font-semibold text-gray-800 mt-10">
+                  <Text className="mt-10 text-lg font-semibold text-gray-800">
                     Accident Images
                   </Text>
 
                   <TouchableOpacity
-                    className="p-2 rounded-md bg-blue-100 flex-row items-center justify-center mt-4"
+                    className="flex-row items-center justify-center p-2 mt-4 bg-blue-100 rounded-md"
                     onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
                   >
                     <MaterialIcons
@@ -529,7 +541,7 @@ export default function Claim() {
                       showsHorizontalScrollIndicator={false}
                     >
                       {formState.damageImages.map((uri, index) => (
-                        <View key={index} className="mr-4 relative">
+                        <View key={index} className="relative mr-4">
                           <Image
                             source={{ uri }}
                             className="w-20 h-20 rounded-md"
