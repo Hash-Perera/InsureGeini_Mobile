@@ -2,9 +2,14 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Alert } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import { getWeather } from "@/hooks/weather";
 
 type GoogleMapProps = {
-  onLocationChange: (location: { latitude: number; longitude: number }) => void;
+  onLocationChange: (location: {
+    latitude: number;
+    longitude: number;
+    weather: string;
+  }) => void;
 };
 
 export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
@@ -17,6 +22,29 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  /*  const requestLocationPermission = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied.");
+      Alert.alert("Permission Denied", "Location access is required.");
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+    const newRegion = {
+      latitude,
+      longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    };
+
+    setRegion(newRegion);
+    const weather = await getWeather(latitude, longitude);
+    onLocationChange({ latitude, longitude, weather });
+    //onLocationChange({ latitude, longitude }); // Update location in the parent component
+  };
+ */
   const requestLocationPermission = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -35,7 +63,18 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
     };
 
     setRegion(newRegion);
-    onLocationChange({ latitude, longitude }); // Update location in the parent component
+
+    try {
+      const response = await getWeather(latitude, longitude);
+      const weather = response.data.weather; // Adjust this line based on the actual structure of your response
+      console.log("Weather data:", weather);
+      console.log("Weather data:", response.data);
+      console.log(latitude, longitude);
+      onLocationChange({ latitude, longitude, weather });
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+      setErrorMsg("Failed to fetch weather data.");
+    }
   };
 
   useEffect(() => {
@@ -44,7 +83,7 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
 
   if (!region) {
     return (
-      <View className="flex-1 items-center justify-center">
+      <View className="items-center justify-center flex-1">
         <Text>Loading Map...</Text>
         {errorMsg && <Text>{errorMsg}</Text>}
       </View>
@@ -52,7 +91,7 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
   }
 
   return (
-    <View className="h-40 mt-5 border border-gray-200 rounded-lg overflow-hidden">
+    <View className="h-40 mt-5 overflow-hidden border border-gray-200 rounded-lg">
       <MapView
         style={{ width: "100%", height: "100%" }}
         region={region}
