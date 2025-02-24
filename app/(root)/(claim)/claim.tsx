@@ -80,6 +80,7 @@ export default function Claim() {
     },
     damageImages: [] as string[],
     audio: "",
+    weather: "",
   });
 
   const ClaimSchema = Yup.object().shape({
@@ -153,6 +154,7 @@ export default function Claim() {
       drivingLicenseNo: formState.drivingLicenseNo,
       damagedAreas: formState.damagedAreas,
       location: formState.location,
+      weather: formState.weather,
     };
     formData.append("dto", JSON.stringify(dataObject));
 
@@ -239,8 +241,6 @@ export default function Claim() {
         type: "audio/mp3",
       } as any);
     }
-
-    console.log("Form Data", formData);
 
     await claimService
       .submitClaim(formData)
@@ -502,10 +502,11 @@ export default function Claim() {
                   </Text>
 
                   <GoogleMap
-                    onLocationChange={(location) => {
+                    onLocationChange={({ latitude, longitude, weather }) => {
                       setFormState((prevState) => ({
                         ...prevState,
-                        location,
+                        location: { latitude, longitude },
+                        weather,
                       }));
                     }}
                   />
