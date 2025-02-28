@@ -25,23 +25,23 @@ export default function CameraComponent({
 }: CameraProps) {
   const [facing, setFacing] = useState<CameraType>("back");
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [mediaPermission, requestMediaPermission] =
-    MediaLibrary.usePermissions();
+  // const [mediaPermission, requestMediaPermission] =
+  // MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Ensure permissions
-  if (!cameraPermission || !mediaPermission) return <View />;
-  if (!cameraPermission.granted || !mediaPermission.granted) {
+  if (!cameraPermission) return <View />;
+  if (!cameraPermission.granted) {
     return (
       <View className="flex-1 bg-black justify-center items-center">
         <Text className="text-white text-lg text-center">
           We need your permission to access the camera and media library
         </Text>
         <TouchableOpacity
-          onPress={() => {
+          onPress={async () => {
             requestCameraPermission();
-            requestMediaPermission();
+            // requestMediaPermission();
           }}
           className="bg-blue-500 px-4 py-2 rounded-md mt-4"
         >
@@ -82,7 +82,7 @@ export default function CameraComponent({
           const asset = await MediaLibrary.createAssetAsync(croppedPhoto.uri);
 
           // Get metadata
-          const metadata = await MediaLibrary.getAssetInfoAsync(asset.id);
+          // const metadata = await MediaLibrary.getAssetInfoAsync(asset.id);
 
           // console.log("Photo Metadata:", metadata);
 

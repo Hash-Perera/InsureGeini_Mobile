@@ -38,6 +38,7 @@ const enum ECameraMode {
   DAMAGE = "DAMAGE",
   LIC_PLATE_FRONT = "LIC_PLATE_FRONT",
   LIC_PLATE_BACK = "LIC_PLATE_BACK",
+  VIN_NUMBER = "VIN_NUMBER",
 }
 
 const options = [
@@ -81,6 +82,8 @@ export default function Claim() {
     damageImages: [] as string[],
     audio: "",
     weather: "",
+    vinNum: "",
+    vinNumber: "",
   });
 
   const ClaimSchema = Yup.object().shape({
@@ -125,6 +128,9 @@ export default function Claim() {
         case "LIC_PLATE_BACK":
           setCameraMode(null);
           return { ...prev, backLicencePlate: uri };
+        case "VIN_NUMBER":
+          setCameraMode(null);
+          return { ...prev, vinNumber: uri };
         case "DAMAGE":
           return { ...prev, damageImages: uri };
 
@@ -155,6 +161,7 @@ export default function Claim() {
       damagedAreas: formState.damagedAreas,
       location: formState.location,
       weather: formState.weather,
+      vinNum: formState.vinNum,
     };
     formData.append("dto", JSON.stringify(dataObject));
 
@@ -225,6 +232,10 @@ export default function Claim() {
         formState.backLicencePlate,
         "back_licence_plate.png"
       );
+    }
+
+    if (formState.vinNumber) {
+      appendFile("vinNumber", formState.vinNumber, "vin_number.png");
     }
 
     if (formState.damageImages.length > 0) {
@@ -454,6 +465,38 @@ export default function Claim() {
                   />
                 </View>
                 <View className="p-4 mt-3 bg-white rounded-lg">
+                  <Text className="mt-4 text-lg font-semibold text-gray-800">
+                    VIN Number
+                  </Text>
+
+                  <InputField
+                    label=""
+                    placeholder="VIN number"
+                    value={values.vinNum}
+                    onChangeText={(text) => {
+                      handleChange("vinNum")(text);
+                      setFormState((prev) => ({
+                        ...prev,
+                        vinNum: text,
+                      }));
+                    }}
+                    error={errors.vinNum}
+                    touched={touched.vinNum}
+                  />
+
+                  <CameraInput
+                    label="VIN Number"
+                    imageUri={formState.vinNumber}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.VIN_NUMBER, {
+                        cardHeight: 40,
+                        cardWidth: 70,
+                        displayText: "Align Here",
+                      })
+                    }
+                    colors={colors}
+                  />
+
                   <Text className="mt-4 text-lg font-semibold text-gray-800">
                     License Plate Details
                   </Text>

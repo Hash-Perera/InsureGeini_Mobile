@@ -67,9 +67,6 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
     try {
       const response = await getWeather(latitude, longitude);
       const weather = response.data.weather; // Adjust this line based on the actual structure of your response
-      console.log("Weather data:", weather);
-      console.log("Weather data:", response.data);
-      console.log(latitude, longitude);
       onLocationChange({ latitude, longitude, weather });
     } catch (error) {
       console.error("Error fetching weather data:", error);
