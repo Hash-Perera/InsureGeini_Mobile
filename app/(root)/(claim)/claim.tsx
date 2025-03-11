@@ -26,6 +26,7 @@ const tailwindConfig = require("../../../tailwind.config");
 import { ClaimService } from "@/services/claim.service";
 import AppLoader from "@/components/apploader";
 import { useRouter } from "expo-router";
+import DropdownField from "@/components/form/Dropdown";
 
 const enum ECameraMode {
   NIC_FRONT = "NIC_FRONT",
@@ -63,6 +64,7 @@ export default function Claim() {
 
   const [formState, setFormState] = useState({
     insuranceId: "",
+    vehicleId: "",
     insuranceFront: "",
     insuranceBack: "",
     nicNo: "",
@@ -156,6 +158,7 @@ export default function Claim() {
 
     const dataObject = {
       insuranceId: formState.insuranceId,
+      vehicleId: formState.vehicleId,
       nicNo: formState.nicNo,
       drivingLicenseNo: formState.drivingLicenseNo,
       damagedAreas: formState.damagedAreas,
@@ -300,6 +303,18 @@ export default function Claim() {
                   <Text className="text-lg font-semibold text-gray-800">
                     Insurance Details
                   </Text>
+
+                  <DropdownField
+                    label="Select Vehicle"
+                    value={values.vehicleId}
+                    onChangeSelect={(value) => {
+                      handleChange("vehicleId")(value);
+                      setFormState((prev) => ({
+                        ...prev,
+                        vehicleId: value,
+                      }));
+                    }}
+                  />
 
                   <InputField
                     label=""
