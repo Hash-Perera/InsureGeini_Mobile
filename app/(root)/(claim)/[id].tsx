@@ -1,7 +1,15 @@
-import { Claim } from "@/models/claim.model";
+import { Claim, Report } from "@/models/claim.model";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  Linking,
+} from "react-native";
 import AppLoader from "@/components/apploader";
 
 //! Services
@@ -15,14 +23,16 @@ export default function ClaimDetails() {
 
   //! Get claims from the server
   const [claim, setClaim] = useState<Claim>({});
+  const [report, setReport] = useState<Report | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   //! Fetch claims from the server
   useEffect(() => {
     const fetchClaims = async () => {
       try {
-        const response = await ClaimService.getClaimById(id as any);
+        const response = await ClaimService.getClaimById(id as string);
         setClaim(response.data.data);
+        setReport(response.data.report);
       } catch (err) {
         console.log(err);
       } finally {
@@ -36,8 +46,8 @@ export default function ClaimDetails() {
   return (
     <>
       <AppLoader visible={isLoading} message="Loading..." />
-      <ScrollView className="flex-1 bg-gray-100 p-5">
-        <View className="bg-white p-5 rounded-lg shadow-md mb-4">
+      <ScrollView className="flex-1 p-5 bg-gray-100">
+        <View className="p-5 mb-4 bg-white rounded-lg shadow-md">
           <Text className="text-lg font-bold text-gray-800">
             Claim ID: {claim._id}
           </Text>
@@ -53,8 +63,8 @@ export default function ClaimDetails() {
         </View>
 
         {/* Insurance Info */}
-        <View className="bg-white p-5 rounded-lg shadow-md mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-2">
+        <View className="p-5 mb-4 bg-white rounded-lg shadow-md">
+          <Text className="mb-2 text-lg font-semibold text-gray-800">
             Insurance Details
           </Text>
           <Text className="text-gray-600">
@@ -67,8 +77,8 @@ export default function ClaimDetails() {
         </View>
 
         {/* Damage Details */}
-        <View className="bg-white p-5 rounded-lg shadow-md mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-2">
+        <View className="p-5 mb-4 bg-white rounded-lg shadow-md">
+          <Text className="mb-2 text-lg font-semibold text-gray-800">
             Damage Details
           </Text>
           <Text className="text-gray-600">
@@ -99,73 +109,73 @@ export default function ClaimDetails() {
         </View>
 
         {/* Image Sections */}
-        <View className="bg-white p-5 rounded-lg shadow-md mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-2">
+        <View className="p-5 mb-4 bg-white rounded-lg shadow-md">
+          <Text className="mb-2 text-lg font-semibold text-gray-800">
             Uploaded Images
           </Text>
 
           {/* Insurance Images */}
-          <Text className="text-gray-600 font-medium">
+          <Text className="font-medium text-gray-600">
             📄 Insurance Documents
           </Text>
           <View className="flex-row gap-2 mt-2">
             <Image
               source={{ uri: claim.insuranceFront }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
             <Image
               source={{ uri: claim.insuranceBack }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
           </View>
 
           {/* NIC Images */}
-          <Text className="text-gray-600 font-medium mt-4">
+          <Text className="mt-4 font-medium text-gray-600">
             🆔 NIC Documents
           </Text>
           <View className="flex-row gap-2 mt-2">
             <Image
               source={{ uri: claim.nicFront }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
             <Image
               source={{ uri: claim.nicBack }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
           </View>
 
           {/* License Images */}
-          <Text className="text-gray-600 font-medium mt-4">
+          <Text className="mt-4 font-medium text-gray-600">
             🚗 License Documents
           </Text>
           <View className="flex-row gap-2 mt-2">
             <Image
               source={{ uri: claim.drivingLicenseFront }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
             <Image
               source={{ uri: claim.drivingLicenseBack }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
           </View>
 
           {/* Vehicle Images */}
-          <Text className="text-gray-600 font-medium mt-4">
+          <Text className="mt-4 font-medium text-gray-600">
             🚘 Vehicle Details
           </Text>
           <View className="flex-row gap-2 mt-2">
             <Image
               source={{ uri: claim.frontLicencePlate }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
             <Image
               source={{ uri: claim.backLicencePlate }}
-              className="h-24 w-24 rounded-md"
+              className="w-24 h-24 rounded-md"
             />
           </View>
 
           {/* Damage Images */}
-          <Text className="text-gray-600 font-medium mt-4">
+          <Text className="mt-4 font-medium text-gray-600">
             ⚠️ Damage Images
           </Text>
           <FlatList
@@ -175,12 +185,56 @@ export default function ClaimDetails() {
             renderItem={({ item }) => (
               <Image
                 source={{ uri: item }}
-                className="h-24 w-24 rounded-md m-2"
+                className="w-24 h-24 m-2 rounded-md"
               />
             )}
             showsHorizontalScrollIndicator={false}
           />
         </View>
+
+        {/* Report */}
+        {report && (
+          <View className="p-5 mb-4 bg-white rounded-lg shadow-md">
+            <Text className="mb-2 text-lg font-semibold text-gray-800">
+              Reports
+            </Text>
+            <Text className="text-gray-600">
+              Status :
+              {report?.status === "Approved" ? (
+                <Text className="font-semibold text-green-500"> Approved </Text>
+              ) : (
+                <Text className="text-red-500"> Rejected </Text>
+              )}
+            </Text>
+            {/* Incident report PDF */}
+
+            <Text className="mt-2 font-medium text-gray-600">
+              📄 Incident Report
+            </Text>
+            {/* download pdf */}
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL(report?.incidentReport);
+              }}
+              className="flex-row items-center mt-2"
+            >
+              <Text className="text-blue-500">View PDF</Text>
+            </TouchableOpacity>
+
+            <Text className="mt-2 font-medium text-gray-600">
+              📄 Decision Report
+            </Text>
+            {/* download pdf */}
+            <TouchableOpacity
+              onPress={() => {
+                Linking.openURL(report?.decisionReport);
+              }}
+              className="flex-row items-center mt-2"
+            >
+              <Text className="text-blue-500">View PDF</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </>
   );
