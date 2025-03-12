@@ -17,6 +17,6 @@ export const ClaimService = {
 
   //! Get claim by ID
   async getClaimById(id: string) {
-    return await httpClient.get(`/claims/${id}`);
+    return await httpClient.get(`/claims/detail/${id}`);
   },
 };

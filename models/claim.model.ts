@@ -24,3 +24,17 @@ export interface Claim {
   damageImages?: string[];
   createdAt?: string;
 }
+
+export interface Report {
+  userId: string;
+  claimId: string;
+  audioToTextConvertedContext: string;
+  status: "Approved" | "Pending" | "Rejected"; // Adjust as needed
+  createdAt: Date;
+  __v: number;
+  decisionReport: string;
+  estimation_approved: number;
+  estimation_requested: number;
+  incidentReport: string;
+  reason: string;
+}
