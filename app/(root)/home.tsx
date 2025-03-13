@@ -65,10 +65,10 @@ export default function Home() {
 
           <View className="p-2 mb-4">
             <Text className="text-2xl font-semibold text-white">
-              Hello, {user?.user.name}
+              Hello, {user?.user?.name}
             </Text>
             <Text className="text-lg text-white">
-              Insurance ID: {user?.user.insuranceId}
+              Insurance ID: {user?.user?.insuranceId}
             </Text>
           </View>
 
