@@ -8,10 +8,22 @@ import React, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
+type User = {
+  insuranceId: string;
+  name: string;
+  email: string;
+  mobileNumber: string;
+  address: string;
+};
+
 interface AuthContextProps {
   isLoggedIn: boolean;
-  userDetails: { role: string; token: string } | null;
-  login: (details: { role: string; token: string }) => Promise<void>;
+  userDetails: { role: string; token: string; user: User } | null;
+  login: (details: {
+    role: string;
+    token: string;
+    user: User;
+  }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -23,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userDetails, setUserDetails] = useState<{
     role: string;
     token: string;
+    user: User;
   } | null>(null);
 
   useEffect(() => {
@@ -42,7 +55,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadAuthState();
   }, []);
 
-  const login = async (details: { role: string; token: string }) => {
+  const login = async (details: {
+    role: string;
+    token: string;
+    user: User;
+  }) => {
     await AsyncStorage.setItem("userDetails", JSON.stringify(details));
     setUserDetails(details);
     setIsLoggedIn(true);
