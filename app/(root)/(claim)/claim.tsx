@@ -40,6 +40,7 @@ const enum ECameraMode {
   LIC_PLATE_FRONT = "LIC_PLATE_FRONT",
   LIC_PLATE_BACK = "LIC_PLATE_BACK",
   VIN_NUMBER = "VIN_NUMBER",
+  VEHICLE_FRONT = "VEHICLE_FRONT",
 }
 
 const options = [
@@ -86,6 +87,7 @@ export default function Claim() {
     weather: "",
     vinNum: "",
     vinNumber: "",
+    vehicleFront: "",
   });
 
   const ClaimSchema = Yup.object().shape({
@@ -133,6 +135,9 @@ export default function Claim() {
         case "VIN_NUMBER":
           setCameraMode(null);
           return { ...prev, vinNumber: uri };
+        case "VEHICLE_FRONT":
+          setCameraMode(null);
+          return { ...prev, vehicleFront: uri };
         case "DAMAGE":
           return { ...prev, damageImages: uri };
 
@@ -256,6 +261,10 @@ export default function Claim() {
       } as any);
     }
 
+    if (formState.vehicleFront) {
+      appendFile("vehicleFront", formState.vehicleFront, "vehicle_front.png");
+    }
+
     await claimService
       .submitClaim(formData)
       .then((res) => {
@@ -301,6 +310,25 @@ export default function Claim() {
               <View className="self-center w-full">
                 <View className="p-4 bg-white rounded-lg ">
                   <Text className="text-lg font-semibold text-gray-800">
+                    Vehicle Front Image
+                  </Text>
+
+                  <CameraInput
+                    label="Front"
+                    imageUri={formState.vehicleFront}
+                    onPress={() =>
+                      handleOpenCamera(ECameraMode.VEHICLE_FRONT, {
+                        cardHeight: 70,
+                        cardWidth: 70,
+                        displayText: "Align the card Here",
+                      })
+                    }
+                    colors={colors}
+                    error={errors.vehicleFront}
+                    touched={touched.vehicleFront}
+                  />
+
+                  <Text className="text-lg font-semibold text-gray-800 mt-3">
                     Insurance Details
                   </Text>
 
@@ -471,7 +499,7 @@ export default function Claim() {
                     imageUri={formState.driverFace}
                     onPress={() =>
                       handleOpenCamera(ECameraMode.DRI_FACE, {
-                        cardHeight: 40,
+                        cardHeight: 70,
                         cardWidth: 70,
                         displayText: "Align the card Here",
                       })
