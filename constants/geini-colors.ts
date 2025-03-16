@@ -5,6 +5,7 @@ const statusColors: Record<string, { text: string; bg: string }> = {
   Approved: { text: "text-black", bg: "bg-green-200" },
   Rejected: { text: "text-white", bg: "bg-red-200" },
   InProgress: { text: "text-white", bg: "bg-blue-200" },
+  "Fraud Detected": { text: "text-gray", bg: "bg-yellow-200" },
 };
 
 const insuranceIcons: (keyof typeof MaterialIcons.glyphMap)[] = [
