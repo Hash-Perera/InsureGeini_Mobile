@@ -53,9 +53,11 @@ export default function ClaimDetails() {
           </Text>
           <View className="flex-row items-center mt-2">
             <Text
-              className={`px-3 py-1 text-xs font-bold rounded-full 
-                ${statusColors[claim.status || "Pending"].bg} 
-                ${statusColors[claim.status || "Pending"].text}`}
+              className="px-3 py-1 text-xs font-bold rounded-full"
+              style={{
+                backgroundColor: statusColors[claim.status || "default"].bg,
+                color: statusColors[claim.status || "default"].text,
+              }}
             >
               {claim.status}
             </Text>
