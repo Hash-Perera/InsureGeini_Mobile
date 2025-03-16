@@ -54,18 +54,18 @@ export default function MyClaims() {
         data={claims}
         keyExtractor={(item) => item._id as string}
         renderItem={({ item }) => {
-          const statusStyle = statusColors[item.status ?? "Pending"];
+          const statusStyle = statusColors[item.status ?? "default"];
 
           return (
             <TouchableOpacity
-              className="bg-white p-6 rounded-lg shadow-md flex-row items-center mb-4 relative"
+              className="bg-white p-6 rounded-lg shadow-sm flex-row items-center mb-4 relative"
               onPress={() => onItemPress(item._id as string)}
             >
               {/* Left Icon */}
               <MaterialIcons name={getRandomIcon()} size={36} color="#1978bb" />
 
               {/* Claim Details */}
-              <View className="ml-4 flex-1">
+              <View className="ml-4 flex-1 mt-6">
                 <Text className="text-lg font-semibold">
                   Claim #{item._id?.slice(-6)}
                 </Text>
@@ -81,9 +81,13 @@ export default function MyClaims() {
               </View>
 
               <View
-                className={`absolute top-3 right-3 px-3 py-1  rounded-lg ${statusStyle.bg}`}
+                className={`absolute top-3 right-3 px-3 py-1 rounded-lg`}
+                style={{ backgroundColor: statusStyle.bg }}
               >
-                <Text className={`font-semibold ${statusStyle.text}`}>
+                <Text
+                  className={`font-semibold`}
+                  style={{ color: statusStyle.text }}
+                >
                   {item.status}
                 </Text>
               </View>
