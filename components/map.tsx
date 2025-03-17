@@ -2,14 +2,9 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Alert } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import { getWeather } from "@/hooks/weather";
 
 type GoogleMapProps = {
-  onLocationChange: (location: {
-    latitude: number;
-    longitude: number;
-    weather: string;
-  }) => void;
+  onLocationChange: (location: { latitude: number; longitude: number }) => void;
 };
 
 export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
@@ -65,9 +60,7 @@ export default function GoogleMap({ onLocationChange }: GoogleMapProps) {
     setRegion(newRegion);
 
     try {
-      const response = await getWeather(latitude, longitude);
-      const weather = response.data.weather; // Adjust this line based on the actual structure of your response
-      onLocationChange({ latitude, longitude, weather });
+      onLocationChange({ latitude, longitude });
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setErrorMsg("Failed to fetch weather data.");
