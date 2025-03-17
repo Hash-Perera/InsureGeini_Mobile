@@ -26,6 +26,7 @@ export interface Claim {
 }
 
 export interface Report {
+  _id: string;
   userId: string;
   claimId: string;
   audioToTextConvertedContext: string;
