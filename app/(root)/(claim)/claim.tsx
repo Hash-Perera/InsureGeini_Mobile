@@ -84,7 +84,6 @@ export default function Claim() {
     },
     damageImages: [] as string[],
     audio: "",
-    weather: "",
     vinNum: "",
     vinNumber: "",
     vehicleFront: "",
@@ -168,7 +167,6 @@ export default function Claim() {
       drivingLicenseNo: formState.drivingLicenseNo,
       damagedAreas: formState.damagedAreas,
       location: formState.location,
-      weather: formState.weather,
       vinNum: formState.vinNum,
     };
     formData.append("dto", JSON.stringify(dataObject));
@@ -588,11 +586,10 @@ export default function Claim() {
                   </Text>
 
                   <GoogleMap
-                    onLocationChange={({ latitude, longitude, weather }) => {
+                    onLocationChange={({ latitude, longitude }) => {
                       setFormState((prevState) => ({
                         ...prevState,
                         location: { latitude, longitude },
-                        weather,
                       }));
                     }}
                   />
