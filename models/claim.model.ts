@@ -11,7 +11,7 @@ export interface Claim {
   damagedAreas?: string[];
   location?: Location;
   userId?: string;
-  status?: "Pending" | "Approved" | "Rejected";
+  status?: string;
   insuranceFront?: string;
   insuranceBack?: string;
   nicFront?: string;
@@ -23,6 +23,7 @@ export interface Claim {
   backLicencePlate?: string;
   damageImages?: string[];
   createdAt?: string;
+  obdCodes?: string;
 }
 
 export interface Report {
