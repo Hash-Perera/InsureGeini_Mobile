@@ -41,7 +41,6 @@ export default function ClaimDetails() {
   const suggestedFeedbacks = [
     "The claims process was quick and hassle-free!",
     "The support team was very helpful and responsive.",
-    "Very satisfied with the service, everything was well-explained.",
     "The service was okay, nothing special.",
     "The instructions for filing a claim were unclear.",
     "The support team guided me through every step patiently.",
