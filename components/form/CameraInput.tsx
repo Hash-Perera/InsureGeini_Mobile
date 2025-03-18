@@ -6,6 +6,7 @@ interface CameraInputProps {
   label: string;
   imageUri: string;
   onPress: () => void;
+  onPressFile?: () => void;
   colors: any;
   error?: string;
   touched?: boolean;
@@ -15,6 +16,7 @@ export default function CameraInput({
   label,
   imageUri,
   onPress,
+  onPressFile,
   colors,
   error,
   touched,
@@ -36,16 +38,28 @@ export default function CameraInput({
           )}
         </View>
 
-        <TouchableOpacity
-          className="p-2 rounded-md bg-blue-100"
-          onPress={onPress}
-        >
-          <MaterialIcons
-            name="camera-alt"
-            size={24}
-            color={colors["custom-blue2"]}
-          />
-        </TouchableOpacity>
+        <View className="flex-row gap-3">
+          <TouchableOpacity
+            className="p-2 rounded-md bg-gray-200"
+            onPress={onPressFile}
+          >
+            <MaterialIcons
+              name="attach-file"
+              size={24}
+              color={colors["custom-blue1"]}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="p-2 rounded-md bg-blue-100"
+            onPress={onPress}
+          >
+            <MaterialIcons
+              name="camera-alt"
+              size={24}
+              color={colors["custom-blue2"]}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       {error && touched && (
         <Text className="text-red-500 text-sm mt-1 ">{error}</Text>

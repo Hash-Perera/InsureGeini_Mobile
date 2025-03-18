@@ -80,20 +80,6 @@ export default function CameraComponent({
 
           // Save photo to media library
           const asset = await MediaLibrary.createAssetAsync(croppedPhoto.uri);
-
-          // Get metadata
-          // const metadata = await MediaLibrary.getAssetInfoAsync(asset.id);
-
-          // console.log("Photo Metadata:", metadata);
-
-          // const photoDetails = {
-          //   uri: croppedPhoto.uri,
-          //   location: metadata.location || "No Location Data",
-          //   creationTime: metadata.creationTime || "No Time Data",
-          // };
-
-          // console.log("Photo Details:", photoDetails);
-
           onCapture(croppedPhoto.uri);
           setIsLoading(false);
           onClose();

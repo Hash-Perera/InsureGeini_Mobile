@@ -154,6 +154,8 @@ export default function Claim() {
     setCameraMode(mode);
   };
 
+  const handleFileUploaderOpen = () => {};
+
   //! Submit Claim Request ======================================>
   const handleSubmit = async (values: any) => {
     console.log("Handle submit executed");
@@ -605,16 +607,40 @@ export default function Claim() {
                     Accident Images
                   </Text>
 
-                  <TouchableOpacity
-                    className="flex-row items-center justify-center p-2 mt-4 bg-blue-100 rounded-md"
-                    onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
-                  >
-                    <MaterialIcons
-                      name="camera-alt"
-                      size={24}
-                      color={colors["custom-blue2"]}
-                    />
-                  </TouchableOpacity>
+                  {/* <TouchableOpacity
+                      className="flex-row items-center justify-center p-2 mt-4 bg-blue-100 rounded-md"
+                      onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
+                    >
+                      <MaterialIcons
+                        name="camera-alt"
+                        size={24}
+                        color={colors["custom-blue2"]}
+                      />
+                    </TouchableOpacity> */}
+
+                  <View className="flex-row items-center justify-between w-full">
+                    <TouchableOpacity
+                      className="flex-1 flex-row items-center justify-center p-3 bg-gray-200 rounded-md m-1"
+                      onPress={() => handleFileUploaderOpen()}
+                    >
+                      <MaterialIcons
+                        name="attach-file"
+                        size={24}
+                        color={colors["custom-blue1"]}
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      className="flex-1 flex-row items-center justify-center p-3 bg-blue-100 rounded-md m-1"
+                      onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
+                    >
+                      <MaterialIcons
+                        name="camera-alt"
+                        size={24}
+                        color={colors["custom-blue2"]}
+                      />
+                    </TouchableOpacity>
+                  </View>
 
                   {formState.damageImages.length > 0 && (
                     <ScrollView
