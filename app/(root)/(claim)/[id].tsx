@@ -166,6 +166,9 @@ export default function ClaimDetails() {
             🔹 Damaged Areas:{" "}
             {claim.damagedAreas ? claim.damagedAreas.join(", ") : "N/A"}
           </Text>
+          <Text className="text-gray-600">
+            🔹 OBD Codes: {claim.obdCodes ? claim.obdCodes : "N/A"}
+          </Text>
 
           {/* Map */}
           {claim.location && (

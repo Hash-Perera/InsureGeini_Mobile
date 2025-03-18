@@ -87,6 +87,7 @@ export default function Claim() {
     vinNum: "",
     vinNumber: "",
     vehicleFront: "",
+    obdCodes: "",
   });
 
   const ClaimSchema = Yup.object().shape({
@@ -168,6 +169,7 @@ export default function Claim() {
       damagedAreas: formState.damagedAreas,
       location: formState.location,
       vinNum: formState.vinNum,
+      obdCodes: formState.obdCodes,
     };
     formData.append("dto", JSON.stringify(dataObject));
 
@@ -635,6 +637,23 @@ export default function Claim() {
                       ))}
                     </ScrollView>
                   )}
+
+                  <View className="mt-5"></View>
+
+                  <InputField
+                    label="OBD Codes"
+                    placeholder="Enter Obd Codes"
+                    value={values.obdCodes}
+                    onChangeText={(text) => {
+                      handleChange("obdCodes")(text);
+                      setFormState((prev) => ({
+                        ...prev,
+                        obdCodes: text,
+                      }));
+                    }}
+                    error={errors.obdCodes}
+                    touched={touched.obdCodes}
+                  />
                 </View>
 
                 <View className="mt-10 mb-8">
