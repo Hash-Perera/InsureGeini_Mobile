@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { Audio } from "expo-av";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const recordingOptions = {
   android: {
@@ -32,9 +33,15 @@ const recordingOptions = {
 
 interface VoiceRecorderProps {
   setFormState: React.Dispatch<React.SetStateAction<any>>;
+  onPressFile: () => void;
+  colors?: string;
 }
 
-export default function VoiceRecorder({ setFormState }: VoiceRecorderProps) {
+export default function VoiceRecorder({
+  setFormState,
+  onPressFile,
+  colors,
+}: VoiceRecorderProps) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [recordingUri, setRecordingUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -201,9 +208,9 @@ export default function VoiceRecorder({ setFormState }: VoiceRecorderProps) {
   }, [sound]);
 
   return (
-    <View className="items-center justify-center flex-1 p-1 mt-5 rounded-lg bg-gray200">
+    <View className="flex-1 justify-center items-center p-1 mt-5 rounded-lg bg-gray200">
       {/* Main Row Container */}
-      <View className="flex-row items-center justify-between">
+      <View className="flex-row justify-between items-center">
         {/* Buttons Section */}
         <View className="flex-row space-x-4">
           {!recordingUri && !recording && (
@@ -250,7 +257,7 @@ export default function VoiceRecorder({ setFormState }: VoiceRecorderProps) {
         </View>
 
         {/* Wave Animation Section */}
-        <View className="flex-1 p-2 ml-4 overflow-hidden bg-gray-100 rounded-lg h-14">
+        <View className="overflow-hidden flex-1 p-2 ml-4 h-14 bg-gray-100 rounded-lg">
           <ScrollView
             horizontal
             ref={scrollViewRef}
@@ -275,6 +282,16 @@ export default function VoiceRecorder({ setFormState }: VoiceRecorderProps) {
             </View>
           </ScrollView>
         </View>
+        <TouchableOpacity
+          className="p-4 bg-gray-200 rounded-full"
+          onPress={onPressFile}
+        >
+          <MaterialIcons
+            name="attach-file"
+            size={24}
+            color={colors ?? "#007AFF"} // Default color if colors is not provided
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Timers */}
