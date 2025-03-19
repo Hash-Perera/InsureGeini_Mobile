@@ -23,16 +23,16 @@ export default function CameraInput({
 }: CameraInputProps) {
   return (
     <>
-      <View className="flex-row justify-between items-center p-3 border border-gray-200 rounded-lg mt-4">
+      <View className="flex-row justify-between items-center p-3 mt-4 rounded-lg border border-gray-200">
         <View className="flex-row justify-between items-center">
-          <Text className="text-sm text-gray-500 font-medium">{label}</Text>
+          <Text className="text-sm font-medium text-gray-500">{label}</Text>
 
           {imageUri && (
             <Image
               source={{
                 uri: imageUri,
               }}
-              className="h-8 w-14 ms-4"
+              className="w-14 h-8 ms-4"
               resizeMode="contain"
             />
           )}
@@ -40,7 +40,7 @@ export default function CameraInput({
 
         <View className="flex-row gap-3">
           <TouchableOpacity
-            className="p-2 rounded-md bg-gray-200"
+            className="p-2 bg-gray-200 rounded-md"
             onPress={onPressFile}
           >
             <MaterialIcons
@@ -50,7 +50,7 @@ export default function CameraInput({
             />
           </TouchableOpacity>
           <TouchableOpacity
-            className="p-2 rounded-md bg-blue-100"
+            className="p-2 bg-blue-100 rounded-md"
             onPress={onPress}
           >
             <MaterialIcons
@@ -62,7 +62,7 @@ export default function CameraInput({
         </View>
       </View>
       {error && touched && (
-        <Text className="text-red-500 text-sm mt-1 ">{error}</Text>
+        <Text className="mt-1 text-sm text-red-500">{error}</Text>
       )}
     </>
   );

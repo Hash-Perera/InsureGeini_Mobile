@@ -27,6 +27,9 @@ import { ClaimService } from "@/services/claim.service";
 import AppLoader from "@/components/apploader";
 import { useRouter } from "expo-router";
 import DropdownField from "@/components/form/Dropdown";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import * as DocumentPicker from "expo-document-picker";
 
 const enum ECameraMode {
   NIC_FRONT = "NIC_FRONT",
@@ -153,8 +156,79 @@ export default function Claim() {
     }
     setCameraMode(mode);
   };
+  const [image, setImage] = useState<string | null>(null);
 
-  const handleFileUploaderOpen = () => {};
+  const handleFileUploaderOpen = async (key: string) => {
+    console.log("handleFileUploaderOpen");
+
+    // Check if the key is DAMAGE, which allows multiple images
+    if (key === "damageImages") {
+      // Get current images for DAMAGE (if any)
+      const currentImages = formState.damageImages || [];
+
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      console.log(result);
+
+      // If images are selected, add them to the current images array
+      if (!result.canceled) {
+        const newImages = result.assets.map((asset) => asset.uri); // Ensure uri is correctly handled
+        setFormState((prev) => ({
+          ...prev,
+          damageImages: [...currentImages, ...newImages],
+        }));
+      }
+    } else {
+      // For other image types, handle single image upload
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      console.log(result);
+
+      // If an image is selected, update the form state with that image
+      if (!result.canceled) {
+        setFormState((prev) => ({
+          ...prev,
+          [key]: result.assets[0].uri, // Ensure single image URI is added properly
+        }));
+      }
+    }
+  };
+
+  const handleAudioFileUploaderOpen = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["audio/*"],
+      });
+
+      if (!result.canceled) {
+        const fileUri = result.assets[0].uri;
+        const fileName = result.assets[0].name;
+
+        // Copy the file to the application's cache directory
+        const cacheDir = FileSystem.cacheDirectory;
+        const newUri = `${cacheDir}/${fileName}`;
+        await FileSystem.copyAsync({ from: fileUri, to: newUri });
+
+        // Update the form state with the new file URI
+        setFormState((prev) => ({
+          ...prev,
+          audio: newUri,
+        }));
+      }
+    } catch (error) {
+      console.error("Error picking audio file:", error);
+    }
+  };
 
   //! Submit Claim Request ======================================>
   const handleSubmit = async (values: any) => {
@@ -283,7 +357,7 @@ export default function Claim() {
   //! ===============================================================================
   //! ===============================================================================
   return (
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="flex-1">
       <AppLoader visible={isLoading} message="Loading..." />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -310,7 +384,7 @@ export default function Claim() {
               setFieldValue,
             }) => (
               <View className="self-center w-full">
-                <View className="p-4 bg-white rounded-lg ">
+                <View className="p-4 bg-white rounded-lg">
                   <Text className="text-lg font-semibold text-gray-800">
                     Vehicle Front Image
                   </Text>
@@ -328,9 +402,10 @@ export default function Claim() {
                     colors={colors}
                     error={errors.vehicleFront}
                     touched={touched.vehicleFront}
+                    onPressFile={() => handleFileUploaderOpen("vehicleFront")}
                   />
 
-                  <Text className="text-lg font-semibold text-gray-800 mt-3">
+                  <Text className="mt-3 text-lg font-semibold text-gray-800">
                     Insurance Details
                   </Text>
 
@@ -375,6 +450,7 @@ export default function Claim() {
                     colors={colors}
                     error={errors.insuranceFront}
                     touched={touched.insuranceFront}
+                    onPressFile={() => handleFileUploaderOpen("insuranceFront")}
                   />
 
                   {/* Back Section */}
@@ -391,6 +467,7 @@ export default function Claim() {
                     colors={colors}
                     error={errors.insuranceBack}
                     touched={touched.insuranceBack}
+                    onPressFile={() => handleFileUploaderOpen("insuranceBack")}
                   />
                 </View>
 
@@ -426,6 +503,7 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() => handleFileUploaderOpen("nicFront")}
                   />
 
                   {/* Back Section */}
@@ -440,6 +518,7 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() => handleFileUploaderOpen("nicBack")}
                   />
                 </View>
 
@@ -475,6 +554,9 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() =>
+                      handleFileUploaderOpen("drivingLicenseFront")
+                    }
                   />
 
                   {/* Back Section */}
@@ -489,6 +571,9 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() =>
+                      handleFileUploaderOpen("drivingLicenseBack")
+                    }
                   />
 
                   <Text className="mt-4 text-lg font-semibold text-gray-800">
@@ -507,6 +592,7 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() => handleFileUploaderOpen("driverFace")}
                   />
                 </View>
                 <View className="p-4 mt-3 bg-white rounded-lg">
@@ -540,6 +626,7 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() => handleFileUploaderOpen("vinNumber")}
                   />
 
                   <Text className="mt-4 text-lg font-semibold text-gray-800">
@@ -557,6 +644,9 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() =>
+                      handleFileUploaderOpen("frontLicencePlate")
+                    }
                   />
                   <CameraInput
                     label="Back"
@@ -569,6 +659,9 @@ export default function Claim() {
                       })
                     }
                     colors={colors}
+                    onPressFile={() =>
+                      handleFileUploaderOpen("backLicencePlate")
+                    }
                   />
 
                   <View className="mt-4"></View>
@@ -601,14 +694,18 @@ export default function Claim() {
                   <Text className="mt-10 text-lg font-semibold text-gray-800">
                     Incident Voice Note
                   </Text>
-                  <VoiceRecorder setFormState={setFormState} />
+                  <VoiceRecorder
+                    setFormState={setFormState}
+                    onPressFile={handleAudioFileUploaderOpen}
+                    colors={colors["custom-blue1"]}
+                  />
 
                   <Text className="mt-10 text-lg font-semibold text-gray-800">
                     Accident Images
                   </Text>
 
                   {/* <TouchableOpacity
-                      className="flex-row items-center justify-center p-2 mt-4 bg-blue-100 rounded-md"
+                      className="flex-row justify-center items-center p-2 mt-4 bg-blue-100 rounded-md"
                       onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
                     >
                       <MaterialIcons
@@ -618,10 +715,10 @@ export default function Claim() {
                       />
                     </TouchableOpacity> */}
 
-                  <View className="flex-row items-center justify-between w-full">
+                  <View className="flex-row justify-between items-center w-full">
                     <TouchableOpacity
-                      className="flex-1 flex-row items-center justify-center p-3 bg-gray-200 rounded-md m-1"
-                      onPress={() => handleFileUploaderOpen()}
+                      className="flex-row flex-1 justify-center items-center p-3 m-1 bg-gray-200 rounded-md"
+                      onPress={() => handleFileUploaderOpen("damageImages")}
                     >
                       <MaterialIcons
                         name="attach-file"
@@ -631,7 +728,7 @@ export default function Claim() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      className="flex-1 flex-row items-center justify-center p-3 bg-blue-100 rounded-md m-1"
+                      className="flex-row flex-1 justify-center items-center p-3 m-1 bg-blue-100 rounded-md"
                       onPress={() => handleOpenCamera(ECameraMode.DAMAGE)}
                     >
                       <MaterialIcons
@@ -645,14 +742,14 @@ export default function Claim() {
                   {formState.damageImages.length > 0 && (
                     <ScrollView
                       horizontal
-                      className="w-full h-24 mt-2 bg-gray-200"
+                      className="mt-2 w-full h-24 bg-gray-200"
                       contentContainerStyle={{
                         alignItems: "center",
                         paddingHorizontal: 10,
                       }}
                       showsHorizontalScrollIndicator={false}
                     >
-                      {formState.damageImages.map((uri, index) => (
+                      {formState?.damageImages?.map((uri, index) => (
                         <View key={index} className="relative mr-4">
                           <Image
                             source={{ uri }}
