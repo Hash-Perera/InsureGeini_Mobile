@@ -1,34 +1,45 @@
+import React, { useState, useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+} from "react-native";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import * as ImageManipulator from "expo-image-manipulator";
-import { useRef, useState } from "react";
-import * as MediaLibrary from "expo-media-library";
-import { View, Text, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import React from "react";
 import AppLoader from "./apploader";
 
 interface CameraProps {
-  onCapture: (uri: string) => void;
   onClose: () => void;
+  onImagesChange: (images: string[]) => void;
+  initialImages?: string[];
   cardWidth: number;
   cardHeight: number;
   displayText: string;
 }
 
-export default function CameraComponent({
-  onCapture,
+export default function MultiImageCameraComponent({
   onClose,
+  onImagesChange,
+  initialImages = [],
   cardWidth,
   cardHeight,
   displayText,
 }: CameraProps) {
   const [facing, setFacing] = useState<CameraType>("back");
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  // const [mediaPermission, requestMediaPermission] =
-  // MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [images, setImages] = useState<string[]>([]); // Store multiple images
+
+  useEffect(() => {
+    if (initialImages.length > 0) {
+      setImages(initialImages);
+    }
+  }, [initialImages]);
 
   // Ensure permissions
   if (!cameraPermission) return <View />;
@@ -36,13 +47,10 @@ export default function CameraComponent({
     return (
       <View className="flex-1 bg-black justify-center items-center">
         <Text className="text-white text-lg text-center">
-          We need your permission to access the camera and media library
+          We need your permission to access the camera
         </Text>
         <TouchableOpacity
-          onPress={async () => {
-            requestCameraPermission();
-            // requestMediaPermission();
-          }}
+          onPress={() => requestCameraPermission()}
           className="bg-blue-500 px-4 py-2 rounded-md mt-4"
         >
           <Text className="text-white text-lg">Grant Permission</Text>
@@ -62,40 +70,41 @@ export default function CameraComponent({
         setIsLoading(true);
 
         if (photo?.uri) {
-          // Crop the image
-          const croppedPhoto = await ImageManipulator.manipulateAsync(
-            photo.uri,
-            [
-              {
-                crop: {
-                  originX: photo.width * ((100 - cardWidth) / 200),
-                  originY: photo.height * ((100 - cardHeight) / 200),
-                  width: photo.width * (cardWidth / 100),
-                  height: photo.height * (cardHeight / 100),
-                },
-              },
-            ],
-            { compress: 1, format: ImageManipulator.SaveFormat.PNG }
-          );
-
-          // Save photo to media library
-          const asset = await MediaLibrary.createAssetAsync(croppedPhoto.uri);
-          onCapture(croppedPhoto.uri);
+          const updatedImages = [...images, photo.uri];
+          setImages(updatedImages);
+          onImagesChange(updatedImages);
           setIsLoading(false);
-          onClose();
         }
       } catch (error) {
-        console.error("Failed to capture and process image:", error);
+        console.error("Failed to capture image:", error);
         setIsLoading(false);
       }
     }
   };
 
+  const removeImage = (index: number) => {
+    Alert.alert("Confirm", "Do you want to delete this image?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          const updatedImages = images.filter((_, i) => i !== index);
+          setImages(updatedImages);
+          onImagesChange(updatedImages); // Notify parent component
+        },
+      },
+    ]);
+  };
+
   return (
     <View className="flex-1">
-      <AppLoader visible={isLoading} message="Prepareing Image..." />
+      <AppLoader visible={isLoading} message="Processing Image..." />
 
-      <View style={{ flex: 5 }} className=" relative overflow-hidden ">
+      <View style={{ flex: 5 }} className="relative overflow-hidden">
         <CameraView
           ref={cameraRef}
           style={{
@@ -185,7 +194,7 @@ export default function CameraComponent({
                 marginTop: -25,
               }}
             >
-              Align the License Here
+              {displayText}
             </Text>
           </View>
         </CameraView>
@@ -201,10 +210,10 @@ export default function CameraComponent({
         {/* Capture Button */}
         <TouchableOpacity
           onPress={isLoading ? undefined : captureImage}
-          className="w-16 h-16 bg-black border-4  rounded-full"
+          className="w-14 h-14 bg-black border-4 rounded-full"
         />
 
-        {/* Open Carousel Button */}
+        {/* Close Camera Button */}
         <TouchableOpacity
           onPress={onClose}
           className="items-center justify-center"
@@ -213,6 +222,35 @@ export default function CameraComponent({
           <MaterialIcons name="close" size={32} color="black" />
         </TouchableOpacity>
       </View>
+
+      {/* Horizontal Scrollable Image List */}
+      {images.length > 0 && (
+        <ScrollView
+          horizontal
+          className="w-full h-24 mt-2 bg-gray-200"
+          contentContainerStyle={{
+            alignItems: "center",
+            paddingHorizontal: 10,
+          }}
+          showsHorizontalScrollIndicator={false}
+        >
+          {images.map((uri, index) => (
+            <View key={index} className="mr-4 relative">
+              <Image
+                source={{ uri }}
+                className="w-20 h-20 rounded-md"
+                style={{ resizeMode: "cover" }}
+              />
+              <TouchableOpacity
+                onPress={() => removeImage(index)}
+                className="absolute -top-2 -right-2 bg-red-500 p-1 rounded-full"
+              >
+                <MaterialIcons name="close" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
