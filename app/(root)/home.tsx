@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/AuthContext";
@@ -70,6 +70,12 @@ export default function Home() {
             <Text className="text-lg text-white">
               Insurance ID: {user?.user?.insuranceId}
             </Text>
+
+            {/* <Image
+              source={require("@/assets/images/DashboardAnimation.gif")}
+              className="w-52 h-52 mb-4"
+              resizeMode="contain"
+            /> */}
           </View>
 
           {/* <View className="hidden p-4 rounded-lg bg-white/20">

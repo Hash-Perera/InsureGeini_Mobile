@@ -168,8 +168,8 @@ export default function Claim() {
 
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
-        allowsEditing: true,
-        aspect: [4, 3],
+        allowsEditing: false,
+        // aspect: [4, 3],
         quality: 1,
       });
 
@@ -187,8 +187,8 @@ export default function Claim() {
       // For other image types, handle single image upload
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
-        allowsEditing: true,
-        aspect: [4, 3],
+        allowsEditing: false,
+        // aspect: [4, 3],
         quality: 1,
       });
 
